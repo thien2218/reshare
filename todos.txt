@@ -1,0 +1,5 @@
+- Learn how to write tests
+- Write failing tests for user and auth module to set expectation
+- Learn about session auth
+- Intergrate Lucia-auth with NestJS
+- Implement functions to pass the tests

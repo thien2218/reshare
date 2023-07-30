@@ -1,0 +1,113 @@
+ENDPOINTS
+1. Authentication:
+   POST /auth/signup: Sign up a new user.
+   POST /auth/signin: Sign in a user.
+   POST /auth/signout: Sign out a user.
+   POST /auth/refresh: Refresh user’s access token.
+
+2. User profiles:
+   GET    /users&query={query}: Retrieves users searched through query.
+   GET    /users/{id}: Retrieves a user’s profile.
+   PUT    /users/{id}: Updates a user’s profile.
+   DELETE /users/{id}: Deletes a user’s profile.
+
+3. Article posting:
+   GET    /articles/{id}: Retrieves an article.
+   POST   /articles: Creates a new article.
+   PUT    /articles/{id}: Updates an article.
+   DELETE /articles/{id}: Deletes an article.
+
+4. Short posts:
+   GET    /posts/{id}: Retrieves a post.
+   POST   /posts: Creates a new post.
+   PUT    /posts/{id}: Updates a post.
+   DELETE /posts/{id}: Deletes a post.
+
+5. Resource search/filter/sort:
+   GET /resources?search={search}&author={author}&tags={tags}&order={order}&page={page}: Searches for or filters or sorts resources.
+
+6. Resource tagging:
+   GET    /tags?query={query}: Retrieves tags searched through a query.
+   POST   /resources/{id}/tags: Adds a tag to a resource.
+   DELETE /resources/{id}/tags/{tagId}: Removes a tag from a resource.
+
+7. Resource rating and feedback:
+   GET    /resources/{id}/ratings: Retrieves a resource’s ratings.
+   POST   /resources/{id}/ratings: Adds a rating to a resource.
+   PUT    /resources/{id}/ratings/{ratingId}: Updates a rating.
+   DELETE /resources/{id}/ratings/{ratingId}: Deletes a rating.
+
+8. Social sharing:
+   GET /resources/{id}/share: Shares a resource on social media.
+
+9. User engagement:
+   GET    /articles/{id}/comments: Retrieves an article’s comments.
+   POST   /articles/{id}/comments: Adds a comment to an article.
+   PUT    /articles/{id}/comments/{commentId}: Updates a comment.
+   DELETE /articles/{id}/comments/{commentId}: Deletes a comment.
+
+10. User reporting:
+   POST /resources/{id}/reports: Reports a resource.
+
+11. Resource updates:
+   PUT /resources/{id}/scope: Updates a resource’s sharing scope.
+   PUT /resources/{id}/comments: Updates a resource’s comment allowance.
+
+12. Article series:
+   GET    /series/{id}: Retrieves a series.
+   POST   /series: Creates a new series.
+   PUT    /series/{id}: Updates a series.
+   DELETE /series/{id}: Deletes a series.
+   POST   /series/{id}/articles: Adds an article to a series.
+   DELETE /series/{id}/articles/{articleId}: Removes an article from a series.
+
+ENTITIES
+1. Users:
+   - UserID (PK)
+   - Name
+   - Photo
+   - Bio
+2. Resources:
+   - ResourceID (PK)
+   - UserID (FK)
+   - PostID (FK, nullable)
+   - ArticleID (FK, nullable)
+   - Scope (public/private/permission-based)
+   - Category
+   CONSTRAINT Check_Resource_FKs CHECK (
+      (PostID IS NOT NULL AND ArticleID IS NULL) OR 
+      (PostID IS NULL AND ArticleID IS NOT NULL)
+   );
+3. Posts:
+   - PostID (PK)
+   - Content
+4. Articles:
+   - ArticleID (PK)
+   - Title
+   - Content
+5. Tags:
+   - TagID (PK)
+   - ResourceID (FK)
+   - Keyword
+6. Ratings:
+   - RatingID (PK)
+   - UserID (FK)
+   - ResourceID (FK)
+   - Score
+7. Comments:
+   - CommentID (PK)
+   - UserID (FK)
+   - ResourceID (FK)
+   - Content
+8. Reports:
+   - ReportID (PK)
+   - UserID (FK)
+   - ResourceID (FK)
+   - Reason
+9. Series:
+   - SeriesID (PK)
+   - UserID (FK)
+   - Title
+10. ArticleSeries (junction table for many-to-many relationship between Articles and Series):
+   - SeriesID (FK)
+   - ArticleID (FK)
