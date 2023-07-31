@@ -1,3 +1,4 @@
+- Add types
 - Learn how to write tests
 - Write failing tests for user and auth module to set expectation
 - Learn about session auth

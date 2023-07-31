@@ -64,50 +64,90 @@ ENDPOINTS
 ENTITIES
 1. Users:
    - UserID (PK)
-   - Name
-   - Photo
-   - Bio
+   - Username (text, unique, max_length: 50)
+   - Last name (text, max_length: 30)
+   - First name (text, max_length: 30)
+   - Email (text)
+   - Encrypted password (text)
+   - Email verified (boolean)
+   - Photo URL (text)
+   - Bio (text, max_length: 500)
+
 2. Resources:
    - ResourceID (PK)
    - UserID (FK)
    - PostID (FK, nullable)
    - ArticleID (FK, nullable)
-   - Scope (public/private/permission-based)
-   - Category
+   - Scope (public/private/with_permission)
+   - Allow comments (boolean, default: true)
+   - Likes count (int, default: 0)
+   - Average rating (real, default: 0)
    CONSTRAINT Check_Resource_FKs CHECK (
       (PostID IS NOT NULL AND ArticleID IS NULL) OR 
       (PostID IS NULL AND ArticleID IS NOT NULL)
    );
+
 3. Posts:
    - PostID (PK)
-   - Content
+   - Content (text, max_length: 4000)
+   - Image attachments (blob, []string)
+   - Url attachments (blob, []string)
+
 4. Articles:
    - ArticleID (PK)
-   - Title
-   - Content
+   - Title (text, max_length: 100)
+   - Content URL (text)
+   - Word count (int)
+
 5. Tags:
    - TagID (PK)
-   - ResourceID (FK)
-   - Keyword
+   - Keyword (text, max_length: 20)
+
 6. Ratings:
    - RatingID (PK)
    - UserID (FK)
    - ResourceID (FK)
-   - Score
+   - Score (int, min: 1, max: 10)
+
 7. Comments:
    - CommentID (PK)
    - UserID (FK)
    - ResourceID (FK)
-   - Content
-8. Reports:
-   - ReportID (PK)
-   - UserID (FK)
-   - ResourceID (FK)
-   - Reason
+   - Text (text)
+   - Likes count (int, default: 0)
+
+8. Reports (tables):
+   8.1 UserReports
+      - ReportID (PK)
+      - UserID (FK)
+      - Reported userID (FK)
+      - Reason (text, max_length: 500)
+   8.2 CommentReports
+      - ReportID (PK)
+      - UserID (FK)
+      - CommentID (FK)
+      - Reason (text, max_length: 500)
+   8.3 ResourceReports
+      - ReportID (PK)
+      - UserID (FK)
+      - ResourceID (FK)
+      - Reason (text, max_length: 500)
+
 9. Series:
    - SeriesID (PK)
    - UserID (FK)
-   - Title
-10. ArticleSeries (junction table for many-to-many relationship between Articles and Series):
-   - SeriesID (FK)
-   - ArticleID (FK)
+   - Title (text, max_length: 100)
+
+10. Reactions:
+   - UserID (PK, FK)
+   - ReactableID (PK, FK)
+   - Reactable type (comment/post/article)
+   - Reaction type (text, like/dislike, nullable)
+
+11. ArticleSeries (junction table for many-to-many relationship between Articles and Series):
+   - SeriesID (PK, FK)
+   - ArticleID (PK, FK)
+
+12. ResourceTags (junction table for many-to-many relationship between Resources and Tags):
+   - ResourceID (PK, FK)
+   - TagID (PK, FK)

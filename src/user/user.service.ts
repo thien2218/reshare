@@ -4,19 +4,15 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable()
 export class UserService {
-   create(createUserDto: CreateUserDto) {
-      return "This action adds a new user";
-   }
-
-   findOneById(id: number) {
+   async findOneById(id: string) {
       return `This action returns a #${id} user`;
    }
 
-   update(id: number, updateUserDto: UpdateUserDto) {
+   async update(id: string, updateUserDto: UpdateUserDto) {
       return `This action updates a #${id} user`;
    }
 
-   deleteById(id: number) {
+   async remove(id: string) {
       return `This action removes a #${id} user`;
    }
 }
