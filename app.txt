@@ -70,8 +70,8 @@ ENTITIES
    - Email (text)
    - Encrypted password (text)
    - Email verified (boolean)
-   - Photo URL (text)
-   - Bio (text, max_length: 500)
+   - Photo URL (text, nullable)
+   - Bio (text, max_length: 500, nullable)
 
 2. Resources:
    - ResourceID (PK)

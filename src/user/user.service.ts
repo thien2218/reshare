@@ -1,18 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { SelectUserType } from "src/database/schemas/user.schema";
 
 @Injectable()
 export class UserService {
-   async findOneById(id: string) {
-      return `This action returns a #${id} user`;
-   }
+   async findMany(
+      page: number,
+      itemsCount: number
+   ): Promise<SelectUserType[]> {}
 
-   async update(id: string, updateUserDto: UpdateUserDto) {
-      return `This action updates a #${id} user`;
-   }
+   async findOneById(id: string): Promise<SelectUserType> {}
 
-   async remove(id: string) {
-      return `This action removes a #${id} user`;
-   }
+   async update(
+      id: string,
+      updateUserDto: UpdateUserDto
+   ): Promise<SelectUserType> {}
+
+   async remove(id: string): Promise<string> {}
 }

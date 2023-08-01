@@ -1,18 +1,20 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { DatabaseService } from "../database.service";
+import { DatabaseModule } from "../database.module";
+import { DB_CONNECTION } from "src/constants";
 
-describe("DatabaseService", () => {
-   let service: DatabaseService;
+describe("DatabaseModule", () => {
+   let dbConnection;
 
-   beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-         providers: [DatabaseService]
+   beforeAll(async () => {
+      const moduleRef: TestingModule = await Test.createTestingModule({
+         imports: [DatabaseModule]
       }).compile();
 
-      service = module.get<DatabaseService>(DatabaseService);
+      dbConnection = moduleRef.get(DB_CONNECTION);
    });
 
-   it("should be defined", () => {
-      expect(service).toBeDefined();
+   it("should connect to the database", async () => {
+      const result = await dbConnection.execute("SELECT 1+1 as result");
+      expect(result.rows[0].result).toBe(2);
    });
 });

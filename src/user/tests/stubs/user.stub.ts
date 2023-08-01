@@ -1,128 +1,108 @@
-export const userStub = () => {
+import { SelectUserType } from "src/database/schemas/user.schema";
+
+export const userStub = (): SelectUserType => {
    return {
-      id: "01H6NQAK8AZZFX53XZDA0JSKWM",
-      first_name: "Konstance",
-      last_name: "Bullingham",
-      email: "kbullingham0@sbwire.com",
-      gender: "Female",
-      username: "kbullingham0",
-      photo_url: "http://dummyimage.com/107x100.png/5fa2dd/ffffff",
-      bio: "Organized encompassing framework",
-      email_verified: false
+      id: "01H6QK0JSZANVH1R2EFMD9ZN6S",
+      name: "Lyndsie Choulerton",
+      email: "lchoulerton0@ucla.edu",
+      username: "lchoulerton0",
+      photoUrl: "http://dummyimage.com/176x100.png/5fa2dd/ffffff",
+      bio: "Ergonomic maximized projection",
+      emailVerified: true
    };
 };
 
 export const userStubs = () => {
    return [
       {
-         id: "01H6NQAK8AZZFX53XZDA0JSKWM",
-         first_name: "Konstance",
-         last_name: "Bullingham",
-         email: "kbullingham0@sbwire.com",
-         gender: "Female",
-         username: "kbullingham0",
-         photo_url: "http://dummyimage.com/107x100.png/5fa2dd/ffffff",
-         bio: "Organized encompassing framework",
-         email_verified: false
+         id: "01H6QK0JSZANVH1R2EFMD9ZN6S",
+         name: "Lyndsie Choulerton",
+         email: "lchoulerton0@ucla.edu",
+         username: "lchoulerton0",
+         photoUrl: "http://dummyimage.com/176x100.png/5fa2dd/ffffff",
+         bio: "Ergonomic maximized projection",
+         emailVerified: true
       },
       {
-         id: "01H6NQAK8C7WKGKDS3MAD5PRZT",
-         first_name: "Ulises",
-         last_name: "McKillop",
-         email: "umckillop1@samsung.com",
-         gender: "Male",
-         username: "umckillop1",
-         photo_url: "http://dummyimage.com/110x100.png/5fa2dd/ffffff",
-         bio: "Implemented 6th generation hardware",
-         email_verified: true
+         id: "01H6QK0JT2K531ER8GC1STSZ9A",
+         name: "Helge Fauning",
+         email: "hfauning1@gmpg.org",
+         username: "hfauning1",
+         photoUrl: "http://dummyimage.com/109x100.png/dddddd/000000",
+         bio: "Versatile exuding access",
+         emailVerified: false
       },
       {
-         id: "01H6NQAK8DJFQT8ZWRDNVGZCHS",
-         first_name: "Keely",
-         last_name: "Hazeldean",
-         email: "khazeldean2@hibu.com",
-         gender: "Female",
-         username: "khazeldean2",
-         photo_url: "http://dummyimage.com/106x100.png/5fa2dd/ffffff",
-         bio: "Progressive demand-driven standardization",
-         email_verified: false
+         id: "01H6QK0JT4YVBM95BGPJZQZ1SC",
+         name: "Odey Von Der Empten",
+         email: "ovon2@fda.gov",
+         username: "ovon2",
+         photoUrl: "http://dummyimage.com/221x100.png/cc0000/ffffff",
+         bio: "Business-focused client-driven middleware",
+         emailVerified: true
       },
       {
-         id: "01H6NQAK9K33A3BVHJ72NY46DB",
-         first_name: "Aloisia",
-         last_name: "Rimington",
-         email: "arimington3@dailymotion.com",
-         gender: "Female",
-         username: "arimington3",
-         photo_url: "http://dummyimage.com/200x100.png/cc0000/ffffff",
-         bio: "Public-key non-volatile policy",
-         email_verified: false
+         id: "01H6QK0JT5GC6SM6A000QRVJ0F",
+         name: "Robinette Windrass",
+         email: "rwindrass3@apple.com",
+         username: "rwindrass3",
+         photoUrl: "http://dummyimage.com/222x100.png/cc0000/ffffff",
+         bio: "Devolved content-based flexibility",
+         emailVerified: false
       },
       {
-         id: "01H6NQAK9M14GZQ53W9CD2FZHM",
-         first_name: "Tobey",
-         last_name: "Singleton",
-         email: "tsingleton4@fc2.com",
-         gender: "Female",
-         username: "tsingleton4",
-         photo_url: "http://dummyimage.com/189x100.png/5fa2dd/ffffff",
-         bio: "Open-source secondary forecast",
-         email_verified: false
+         id: "01H6QK0JT7XAG67MANJXMNC69X",
+         name: "Benedikt St Quenin",
+         email: "bst4@deviantart.com",
+         username: "bst4",
+         photoUrl: "http://dummyimage.com/200x100.png/dddddd/000000",
+         bio: "Operative intangible solution",
+         emailVerified: true
       },
       {
-         id: "01H6NQAK9N0DYZ6P6X5QEEDBB0",
-         first_name: "Tiphanie",
-         last_name: "Durden",
-         email: "tdurden5@pinterest.com",
-         gender: "Female",
-         username: "tdurden5",
-         photo_url: "http://dummyimage.com/130x100.png/dddddd/000000",
-         bio: "Business-focused even-keeled complexity",
-         email_verified: false
+         id: "01H6QK0JT9TXJ20252VKV5S1QJ",
+         name: "Rubetta Deacon",
+         email: "rdeacon5@rakuten.co.jp",
+         username: "rdeacon5",
+         photoUrl: "http://dummyimage.com/217x100.png/ff4444/ffffff",
+         bio: "De-engineered value-added structure",
+         emailVerified: false
       },
       {
-         id: "01H6NQAK9PWWRFQ2N7AFM9EKQE",
-         first_name: "Amery",
-         last_name: "Walkey",
-         email: "awalkey6@state.tx.us",
-         gender: "Male",
-         username: "awalkey6",
-         photo_url: "http://dummyimage.com/200x100.png/5fa2dd/ffffff",
-         bio: "Reverse-engineered 4th generation product",
-         email_verified: true
+         id: "01H6QK0JTA8HQTKMGFZ8781NY5",
+         name: "Betteanne Coverdale",
+         email: "bcoverdale6@dedecms.com",
+         username: "bcoverdale6",
+         photoUrl: "http://dummyimage.com/192x100.png/dddddd/000000",
+         bio: "Stand-alone 4th generation ability",
+         emailVerified: true
       },
       {
-         id: "01H6NQAK9QTE7EB8SAW8BKVHD9",
-         first_name: "Cart",
-         last_name: "Scola",
-         email: "cscola7@twitter.com",
-         gender: "Male",
-         username: "cscola7",
-         photo_url: "http://dummyimage.com/188x100.png/ff4444/ffffff",
-         bio: "Diverse optimal adapter",
-         email_verified: true
+         id: "01H6QK0JTCAN97HBGCRG0YJT4K",
+         name: "Lyndsay Brezlaw",
+         email: "lbrezlaw7@vinaora.com",
+         username: "lbrezlaw7",
+         photoUrl: "http://dummyimage.com/141x100.png/cc0000/ffffff",
+         bio: "Customizable content-based open architecture",
+         emailVerified: true
       },
       {
-         id: "01H6NQAK9RGR77QTSNCXEJVV15",
-         first_name: "Sharla",
-         last_name: "Blowen",
-         email: "sblowen8@merriam-webster.com",
-         gender: "Female",
-         username: "sblowen8",
-         photo_url: "http://dummyimage.com/114x100.png/dddddd/000000",
-         bio: "Right-sized well-modulated application",
-         email_verified: false
+         id: "01H6QK0JTDKK2HRPE253RNXD3Y",
+         name: "Guinna Connors",
+         email: "gconnors8@kickstarter.com",
+         username: "gconnors8",
+         photoUrl: "http://dummyimage.com/206x100.png/cc0000/ffffff",
+         bio: "Pre-emptive exuding structure",
+         emailVerified: true
       },
       {
-         id: "01H6NQAK9SDRQHBFNH6MND9TNQ",
-         first_name: "Stillman",
-         last_name: "Gorrick",
-         email: "sgorrick9@usda.gov",
-         gender: "Male",
-         username: "sgorrick9",
-         photo_url: "http://dummyimage.com/156x100.png/5fa2dd/ffffff",
-         bio: "Networked heuristic data-warehouse",
-         email_verified: false
+         id: "01H6QK0JTETXD76Q4Q398K4950",
+         name: "Marijn Dwane",
+         email: "mdwane9@adobe.com",
+         username: "mdwane9",
+         photoUrl: "http://dummyimage.com/197x100.png/cc0000/ffffff",
+         bio: "Multi-lateral executive superstructure",
+         emailVerified: true
       }
    ];
 };
