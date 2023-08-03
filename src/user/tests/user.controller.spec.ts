@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "../user.controller";
 import { UserService } from "../user.service";
 import { userStub, userStubs } from "./stubs/user.stub";
-import { SelectUserType } from "src/database/schemas/user.schema";
+import { SelectUserDto } from "src/database/schemas/user.schema";
 
 jest.mock("../user.service");
 
@@ -30,7 +30,7 @@ describe("UserController", () => {
          expect(controller.findMany).toBeDefined();
       });
 
-      let users: SelectUserType[];
+      let users: SelectUserDto[];
       const page = 1;
       const itemsCount = 10;
       const defaultItemsCount = 20;
@@ -53,7 +53,7 @@ describe("UserController", () => {
          expect(controller.findOneById).toBeDefined();
       });
 
-      let user: SelectUserType;
+      let user: SelectUserDto;
 
       beforeEach(async () => {
          user = await controller.findOneById(userStub().id);

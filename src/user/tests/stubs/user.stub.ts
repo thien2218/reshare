@@ -1,6 +1,6 @@
-import { SelectUserType } from "src/database/schemas/user.schema";
+import { SelectUserDto } from "src/database/schemas/user.schema";
 
-export const userStub = (): SelectUserType => {
+export const userStub = (): SelectUserDto => {
    return {
       id: "01H6QK0JSZANVH1R2EFMD9ZN6S",
       name: "Lyndsie Choulerton",
