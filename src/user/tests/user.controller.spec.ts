@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "../user.controller";
 import { UserService } from "../user.service";
-import { userStub, userStubs } from "./stubs/user.stub";
+import { userStub, userStubs, userUpdateStub } from "./stubs/user.stub";
 import { SelectUserDto } from "src/database/schemas/user.schema";
 
 jest.mock("../user.service");
@@ -31,16 +31,13 @@ describe("UserController", () => {
       });
 
       let users: SelectUserDto[];
-      const page = 1;
-      const itemsCount = 10;
-      const defaultItemsCount = 20;
 
       beforeEach(async () => {
-         users = await controller.findMany(page, itemsCount);
+         users = await controller.findMany(1, 10);
       });
 
-      it("should call userService.findMany with a page number and an items count", () => {
-         expect(service.findMany).toBeCalledWith(page, itemsCount);
+      it("should call userService.findMany with a page number and a limit", () => {
+         expect(service.findMany).toBeCalledWith(1, 10);
       });
 
       it("should return a list of user objecst", () => {
@@ -65,6 +62,46 @@ describe("UserController", () => {
 
       it("should return a user object", () => {
          expect(user).toEqual(userStub());
+      });
+   });
+
+   describe("update", () => {
+      it("should be defined", () => {
+         expect(controller.update).toBeDefined();
+      });
+
+      let user: SelectUserDto;
+
+      beforeEach(async () => {
+         user = await controller.update(userStub().id, userUpdateStub());
+      });
+
+      it("should call userService.update with user id", () => {
+         expect(service.update).toBeCalledWith(userStub().id, userUpdateStub());
+      });
+
+      it("should return a user object", () => {
+         expect(user).toEqual(userStub());
+      });
+   });
+
+   describe("delete", () => {
+      it("should be defined", () => {
+         expect(controller.remove).toBeDefined();
+      });
+
+      let message: string;
+
+      beforeEach(async () => {
+         message = await controller.remove(userStub().id);
+      });
+
+      it("should call userService.remove with user id", () => {
+         expect(service.remove).toBeCalledWith(userStub().id);
+      });
+
+      it("should return a user object", () => {
+         expect(message).toEqual("User deleted successfully!");
       });
    });
 });

@@ -38,9 +38,13 @@ export const SelectUserSchema = createSelectSchema(user).omit({
 
 export type SelectUserDto = z.infer<typeof SelectUserSchema>;
 
-export const UpdateUserSchema = SelectUserSchema.partial().omit({
-   id: true,
-   emailVerified: true
-});
+export const UpdateUserSchema = SelectUserSchema.partial()
+   .omit({
+      id: true,
+      emailVerified: true
+   })
+   .refine((obj) => Object.values(obj).some((val) => val !== undefined), {
+      message: "At least one property must be present"
+   });
 
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;

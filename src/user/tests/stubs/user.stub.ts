@@ -1,4 +1,4 @@
-import { SelectUserDto } from "src/database/schemas/user.schema";
+import { SelectUserDto, UpdateUserDto } from "src/database/schemas/user.schema";
 
 export const userStub = (): SelectUserDto => {
    return {
@@ -105,4 +105,12 @@ export const userStubs = () => {
          emailVerified: true
       }
    ];
+};
+
+export const userUpdateStub = (): UpdateUserDto => {
+   return {
+      name: "Lyndsie Choulerton",
+      email: "lchoulerton0@ucla.edu",
+      username: "lchoulerton0"
+   };
 };

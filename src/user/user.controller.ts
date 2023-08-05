@@ -2,23 +2,19 @@ import {
    Controller,
    Get,
    Body,
-   Patch,
+   Put,
    Param,
    Delete,
-   ParseIntPipe,
    Query,
    DefaultValuePipe,
-   UsePipes,
-   Post
+   UsePipes
 } from "@nestjs/common";
-import { UserService } from "./user.service";
 import {
-   CreateUserDto,
-   CreateUserSchema,
    UpdateUserDto,
    UpdateUserSchema
 } from "src/database/schemas/user.schema";
-import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
+import { UserService } from "./user.service";
+import { ZodValidationPipe, PositiveIntPipe } from "src/pipes";
 
 @Controller("user")
 export class UserController {
@@ -26,8 +22,8 @@ export class UserController {
 
    @Get()
    async findMany(
-      @Query("page", ParseIntPipe) page: number,
-      @Query("limit", new DefaultValuePipe(20), ParseIntPipe) limit: number
+      @Query("page", PositiveIntPipe) page: number,
+      @Query("limit", new DefaultValuePipe(20), PositiveIntPipe) limit: number
    ) {
       return this.userService.findMany(page, limit);
    }
@@ -37,7 +33,7 @@ export class UserController {
       return this.userService.findOneById(id);
    }
 
-   @Patch(":id")
+   @Put(":id")
    @UsePipes(new ZodValidationPipe(UpdateUserSchema))
    async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
       return this.userService.update(id, updateUserDto);
