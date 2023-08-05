@@ -3,6 +3,7 @@ import { DB_CONNECTION } from "src/constants";
 import { ConfigService } from "@nestjs/config";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
+import * as schema from "./schemas";
 
 @Module({
    providers: [
@@ -16,7 +17,7 @@ import { drizzle } from "drizzle-orm/libsql";
             ) as string;
 
             const client = createClient({ url, authToken });
-            return drizzle(client);
+            return drizzle(client, { schema });
          }
       }
    ],
