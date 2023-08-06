@@ -2,7 +2,8 @@ import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = sqliteTable("users", {
+// Table definition
+const users = sqliteTable("users", {
    id: text("id").primaryKey(),
    username: text("username").notNull(),
    name: text("name").notNull(),
@@ -15,6 +16,9 @@ export const users = sqliteTable("users", {
    updatedAt: text("updated_at").notNull()
 });
 
+export default users;
+
+// Validation schemas
 export const CreateUserSchema = createInsertSchema(users, {
    username: z.string().nonempty().max(50),
    name: z.string().nonempty().max(50),
@@ -32,15 +36,11 @@ export const CreateUserSchema = createInsertSchema(users, {
       path: ["confirm"]
    });
 
-export type CreateUserDto = z.infer<typeof CreateUserSchema>;
-
 export const SelectUserSchema = createSelectSchema(users).omit({
    createdAt: true,
    updatedAt: true,
    encryptedPassword: true
 });
-
-export type SelectUserDto = z.infer<typeof SelectUserSchema>;
 
 export const UpdateUserSchema = SelectUserSchema.partial()
    .omit({
@@ -51,4 +51,7 @@ export const UpdateUserSchema = SelectUserSchema.partial()
       message: "At least one property must be present"
    });
 
+// DTOs
+export type CreateUserDto = z.infer<typeof CreateUserSchema>;
+export type SelectUserDto = z.infer<typeof SelectUserSchema>;
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;

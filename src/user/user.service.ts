@@ -1,9 +1,8 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import {
    SelectUserDto,
    SelectUserSchema,
-   UpdateUserDto,
-   users
+   UpdateUserDto
 } from "src/database/schemas/user.schema";
 import { userStub } from "./tests/stubs/user.stub";
 import { DB_CONNECTION } from "../constants";
@@ -20,21 +19,25 @@ export class UserService {
 
    async findMany(page: number, limit: number): Promise<SelectUserDto[]> {
       const offset = (page - 1) * limit;
-      const usersData = await this.dbService.query.users.findMany({
+      const users = await this.dbService.query.users.findMany({
          limit,
          offset
       });
 
-      const result = usersData.map((user) => SelectUserSchema.parse(user));
+      if (!users.length) throw new NotFoundException();
+
+      const result = users.map((user) => SelectUserSchema.parse(user));
       return result;
    }
 
    async findOneById(id: string): Promise<SelectUserDto> {
-      const userData = await this.dbService.query.users.findFirst({
-         where: eq(users.id, id)
+      const user = await this.dbService.query.users.findFirst({
+         where: eq(schema.users.id, id)
       });
 
-      const result = SelectUserSchema.parse(userData);
+      if (user === undefined) throw new NotFoundException();
+
+      const result = SelectUserSchema.parse(user);
       return result;
    }
 

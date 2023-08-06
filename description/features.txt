@@ -1,0 +1,27 @@
+CORE FEATURES:
+1. User profiles: Users can create and manage their own profiles with information such as their name, photo, and bio.
+
+2. Article posting: Users can create and publish their own article posts as a learning resource, which can also be searched and rated by other users.
+
+3. Short posts: Users can create a short post that attaches images or urls to reference resources.
+
+4. Resource search: Users can search for learning resources by title, author, keyword, or category.
+
+5. Resource tagging: Users can tag their learning resources with relevant keywords to make them easier to find in search.
+
+6. Resource rating and feedback: Users can rate and leave feedback on the learning resources they have used to help others decide which resources to use.
+
+7. Social sharing: Users can share learning resources and blog posts on social media platforms like Facebook, Twitter, or LinkedIn to reach a wider audience.
+
+8. Resource commenting: Users can give feedback or share their opinion about a resource through commenting.
+
+9. User reporting: Users can report any inappropriate or offensive content to the site administrator for review and potential removal.
+
+10. Sharing scope: Users can choose whether the resource they are sharing is public, private or can only be accessed by people who have permission.
+
+11. Article series: Users can create a series of articles that talks about a certain topic or subject
+
+ADDITIONAL FEATURES:
+12. Comment replies: Users can reply to each other's comment as a single thread
+
+13. User follow: Users can follow other users to get notifications on their latest posts or articles

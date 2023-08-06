@@ -7,6 +7,8 @@ import { DB_CONNECTION } from "src/constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { mockDbService } from "../__mocks__/dbService";
 import * as schema from "../../database/schemas";
+import { eq } from "drizzle-orm";
+import { NotFoundException } from "@nestjs/common";
 
 describe("UserService", () => {
    let service: UserService;
@@ -49,6 +51,16 @@ describe("UserService", () => {
          expect(dbService.query.users.findMany).toBeCalledWith(pagination);
       });
 
+      it("should throw a 404 not found exception when no user is found", async () => {
+         mockDbService.query.users.findMany.mockImplementationOnce(() =>
+            Promise.resolve([])
+         );
+
+         await expect(service.findMany(1, 20)).rejects.toThrowError(
+            NotFoundException
+         );
+      });
+
       it("should return an array of user objects", () => {
          expect(usersData).toEqual(userStubs());
       });
@@ -63,6 +75,22 @@ describe("UserService", () => {
 
       it("should be defined", () => {
          expect(service.findOneById).toBeDefined();
+      });
+
+      it("should make a database query to select one user with a user id", () => {
+         expect(dbService.query.users.findFirst).toBeCalledWith({
+            where: eq(schema.users.id, userStub().id)
+         });
+      });
+
+      it("should throw a 404 not found exception when no user is found", async () => {
+         mockDbService.query.users.findFirst.mockImplementationOnce(() =>
+            Promise.resolve(undefined)
+         );
+
+         await expect(service.findOneById(userStub().id)).rejects.toThrowError(
+            NotFoundException
+         );
       });
 
       it("should return a user object", () => {
