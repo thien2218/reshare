@@ -14,7 +14,8 @@ import {
    UpdateUserSchema
 } from "src/database/schemas/user.schema";
 import { UserService } from "./user.service";
-import { ZodValidationPipe, PositiveIntPipe } from "src/pipes";
+import { PositiveIntPipe } from "src/pipes/positive-int.pipe";
+import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 
 @Controller("user")
 export class UserController {

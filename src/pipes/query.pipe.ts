@@ -7,7 +7,7 @@ import {
 import { ZodSchema } from "zod";
 
 @Injectable()
-export class QueryPipe implements PipeTransform {
+export class ParseQueryPipe implements PipeTransform {
    constructor(private readonly schema: ZodSchema<any, any>) {}
 
    transform(value: any, metadata: ArgumentMetadata) {
