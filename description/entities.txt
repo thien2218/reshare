@@ -51,6 +51,7 @@
    - ResourceID (FK)
    - Text (text)
    - Likes count (int, default: 0)
+   - Dislikes count (int, default: 0)
 
 8. Reports (tables):
    8.1 UserReports
@@ -74,11 +75,10 @@
    - UserID (FK)
    - Title (text, max_length: 100)
 
-10. Reactions:
+10. Reactions (junction table for many-to-many relationship between Users and Comments):
    - UserID (PK, FK)
-   - ReactableID (PK, FK)
-   - Reactable type (comment/post/article)
-   - Reaction type (text, like/dislike, nullable)
+   - CommentID (PK, FK)
+   - Reaction type (text, like/dislike)
 
 11. ArticleSeries (junction table for many-to-many relationship between Articles and Series):
    - SeriesID (PK, FK)

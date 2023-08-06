@@ -9,7 +9,7 @@ CORE FEATURES:
 
 5. Resource tagging: Users can tag their learning resources with relevant keywords to make them easier to find in search.
 
-6. Resource rating and feedback: Users can rate and leave feedback on the learning resources they have used to help others decide which resources to use.
+6. Resource rating and feedback: Users can rate and leave a comment as feedback on the learning resources they have used to help others decide which resources to use.
 
 7. Social sharing: Users can share learning resources and blog posts on social media platforms like Facebook, Twitter, or LinkedIn to reach a wider audience.
 
@@ -22,6 +22,10 @@ CORE FEATURES:
 11. Article series: Users can create a series of articles that talks about a certain topic or subject
 
 ADDITIONAL FEATURES:
-12. Comment replies: Users can reply to each other's comment as a single thread
+12. Comment reply: Users can reply to each other's comment as a single thread
 
-13. User follow: Users can follow other users to get notifications on their latest posts or articles
+13. Comment reaction: Users can react on a comment (like or dislike) to show if a comment is helpful or not
+
+14. User follow: Users can follow other users to get notifications on their latest posts or articles
+
+15. Resource recommendation (hard): Each user will have a recommendation feed to view posts or articles they might be interested in. Recommendation algorithm will based on relevance (tags), follows, ratings and comments
