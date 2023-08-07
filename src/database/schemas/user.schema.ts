@@ -5,9 +5,9 @@ import { z } from "zod";
 // Table definition
 const users = sqliteTable("users", {
    id: text("id").primaryKey(),
-   username: text("username").notNull(),
+   username: text("username").unique().notNull(),
+   email: text("email").unique().notNull(),
    name: text("name").notNull(),
-   email: text("email").notNull(),
    encryptedPassword: text("encrypted_password"),
    emailVerified: integer("email_verified", { mode: "boolean" }),
    photoUrl: text("photo_url"),

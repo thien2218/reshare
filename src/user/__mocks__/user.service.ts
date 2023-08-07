@@ -1,4 +1,4 @@
-import { userStub, userStubs } from "../tests/stubs/user.stub";
+import { userStub, userStubs } from "../tests/user.stub";
 
 export const UserService = jest.fn().mockReturnValue({
    findMany: jest.fn().mockResolvedValue(userStubs()),

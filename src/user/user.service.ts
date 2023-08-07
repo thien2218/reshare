@@ -9,7 +9,6 @@ import {
    SelectUserSchema,
    UpdateUserDto
 } from "src/database/schemas/user.schema";
-import { userStub } from "./tests/stubs/user.stub";
 import { DB_CONNECTION } from "../constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { eq, placeholder } from "drizzle-orm";
@@ -65,14 +64,24 @@ export class UserService {
 
       const result = SelectUserSchema.safeParse(user);
 
-      if (result.success) {
-         return result.data;
-      } else {
+      if (!result.success) {
          throw new BadRequestException("Invalid user id");
       }
+
+      return result.data;
    }
 
    async remove(id: string): Promise<string> {
+      const user = await this.dbService
+         .delete(schema.users)
+         .where(eq(schema.users.id, placeholder("id")))
+         .returning({ deletedId: schema.users.id })
+         .get({ id });
+
+      if (!user) {
+         throw new BadRequestException("Invalid user id");
+      }
+
       return "User deleted successfully!";
    }
 }

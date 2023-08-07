@@ -1,14 +1,14 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserService } from "../user.service";
-import { SelectUserDto } from "src/database/schemas/user.schema";
-import { userStub, userStubs } from "./stubs/user.stub";
+import { SelectUserDto, UpdateUserDto } from "src/database/schemas/user.schema";
+import { userStub, userStubs } from "./user.stub";
 import { DatabaseModule } from "src/database/database.module";
 import { DB_CONNECTION } from "src/constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
-import { mockDbService } from "../__mocks__/database.service";
+import { MockDbService } from "../__mocks__/database.service";
 import * as schema from "../../database/schemas";
 import { eq, placeholder } from "drizzle-orm";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 describe("UserService", () => {
    let service: UserService;
@@ -30,7 +30,7 @@ describe("UserService", () => {
          providers: [UserService]
       })
          .overrideProvider(DB_CONNECTION)
-         .useValue(mockDbService)
+         .useValue(MockDbService)
          .compile();
 
       service = module.get(UserService);
@@ -44,30 +44,27 @@ describe("UserService", () => {
    describe("findMany", () => {
       let usersData: SelectUserDto[];
 
-      beforeEach(async () => {
-         usersData = await service.findMany(0, 20);
-      });
-
       it("should be defined", () => {
          expect(service.findMany).toBeDefined();
+      });
+
+      beforeEach(async () => {
+         usersData = await service.findMany(0, 20);
       });
 
       it("should make a database query to select many users with correct arguments", () => {
          expect(dbService.query.users.findMany).toBeCalledWith(placeholders);
       });
 
-      it("should prepare a statement for future db query", () => {
-         expect(dbService.query.users.findMany().prepare).toBeCalled();
-      });
-
       it("should call .all method of prepared statement with correct query", () => {
+         expect(dbService.query.users.findMany().prepare).toBeCalled();
          expect(dbService.query.users.findMany().prepare().all).toBeCalledWith(
             pagination
          );
       });
 
       it("should throw a 404 not found exception when no user is found", async () => {
-         mockDbService.query.users
+         MockDbService.query.users
             .findMany()
             .prepare()
             .all.mockImplementationOnce(() => Promise.resolve([]));
@@ -85,12 +82,12 @@ describe("UserService", () => {
    describe("findOneById", () => {
       let usersData: SelectUserDto;
 
-      beforeEach(async () => {
-         usersData = await service.findOneById(userStub().id);
-      });
-
       it("should be defined", () => {
          expect(service.findOneById).toBeDefined();
+      });
+
+      beforeEach(async () => {
+         usersData = await service.findOneById(userStub().id);
       });
 
       it("should make a database query to select one user with a user id", () => {
@@ -99,19 +96,15 @@ describe("UserService", () => {
          });
       });
 
-      it("should prepare a statement for future db query", () => {
-         expect(dbService.query.users.findMany().prepare).toBeCalled();
-      });
-
       it("should call .get method of prepared statement", () => {
+         expect(dbService.query.users.findMany().prepare).toBeCalled();
          expect(dbService.query.users.findMany().prepare().get).toBeCalled();
       });
 
       it("should throw a 404 not found exception when no user is found", async () => {
-         mockDbService.query.users
-            .findFirst()
-            .prepare()
-            .get.mockImplementationOnce(() => Promise.resolve(undefined));
+         MockDbService.query.users.get.mockImplementationOnce(() =>
+            Promise.resolve(undefined)
+         );
 
          await expect(service.findOneById(userStub().id)).rejects.toThrowError(
             NotFoundException
@@ -120,6 +113,98 @@ describe("UserService", () => {
 
       it("should return a user object", () => {
          expect(usersData).toEqual(userStub());
+      });
+   });
+
+   describe("update", () => {
+      let id: string;
+      let updateUserDto: UpdateUserDto;
+      let selectUserDto: SelectUserDto;
+
+      it("should be defined", () => {
+         expect(service.update).toBeDefined();
+      });
+
+      beforeEach(async () => {
+         id = "testId";
+         updateUserDto = { name: "testName" };
+         selectUserDto = await service.update(id, updateUserDto);
+      });
+
+      it("should call dbService.update with correct parameters", () => {
+         expect(dbService.update).toBeCalledWith(schema.users);
+
+         expect(dbService.update(schema.users).set).toBeCalledWith(
+            updateUserDto
+         );
+
+         expect(
+            dbService.update(schema.users).set(updateUserDto).where
+         ).toBeCalledWith(eq(schema.users.id, placeholder("id")));
+
+         expect(
+            dbService.update(schema.users).set(updateUserDto).returning
+         ).toBeCalled();
+
+         expect(
+            dbService.update(schema.users).set(updateUserDto).prepare
+         ).toBeCalled();
+
+         expect(
+            dbService.update(schema.users).set(updateUserDto).get
+         ).toBeCalledWith({ id });
+      });
+
+      it("should return the updated user data", () => {
+         expect(selectUserDto).toEqual(userStub());
+      });
+
+      it("should throw BadRequestException if user id is invalid", async () => {
+         MockDbService.get.mockImplementationOnce(() =>
+            Promise.resolve(undefined)
+         );
+
+         await expect(
+            service.update("invalidId", updateUserDto)
+         ).rejects.toThrow(BadRequestException);
+      });
+   });
+
+   describe("remove", () => {
+      let id: string;
+      let result: string;
+
+      beforeEach(async () => {
+         id = "testId";
+         result = await service.remove(id);
+      });
+
+      it("should call dbService.delete with correct parameters", () => {
+         expect(dbService.delete).toBeCalledWith(schema.users);
+
+         expect(dbService.delete(schema.users).where).toBeCalledWith(
+            eq(schema.users.id, placeholder("id"))
+         );
+
+         expect(dbService.delete(schema.users).returning).toBeCalledWith({
+            deletedId: schema.users.id
+         });
+
+         expect(dbService.delete(schema.users).get).toBeCalledWith({ id });
+      });
+
+      it("should return a success message", () => {
+         expect(result).toEqual("User deleted successfully!");
+      });
+
+      it("should throw BadRequestException if user id is invalid", async () => {
+         MockDbService.get.mockImplementationOnce(() =>
+            Promise.resolve(undefined)
+         );
+
+         await expect(service.remove("invalidId")).rejects.toThrow(
+            BadRequestException
+         );
       });
    });
 });
