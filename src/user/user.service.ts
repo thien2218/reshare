@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+   BadRequestException,
+   Inject,
+   Injectable,
+   NotFoundException
+} from "@nestjs/common";
 import {
    SelectUserDto,
    SelectUserSchema,
@@ -50,7 +55,21 @@ export class UserService {
       id: string,
       updateUserDto: UpdateUserDto
    ): Promise<SelectUserDto> {
-      return userStub();
+      const prepared = this.dbService
+         .update(schema.users)
+         .set(updateUserDto)
+         .where(eq(schema.users.id, placeholder("id")))
+         .returning()
+         .prepare();
+      const user = await prepared.get({ id });
+
+      const result = SelectUserSchema.safeParse(user);
+
+      if (result.success) {
+         return result.data;
+      } else {
+         throw new BadRequestException("Invalid user id");
+      }
    }
 
    async remove(id: string): Promise<string> {

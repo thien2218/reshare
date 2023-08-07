@@ -7,7 +7,7 @@ import { ConfigModule } from "@nestjs/config";
    imports: [
       UserModule,
       DatabaseModule,
-      ConfigModule.forRoot({ isGlobal: true })
+      ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env.local" })
    ],
    controllers: [],
    providers: []

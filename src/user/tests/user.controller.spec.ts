@@ -10,6 +10,12 @@ describe("UserController", () => {
    let controller: UserController;
    let service: UserService;
 
+   const query = {
+      search: "hi",
+      offset: 0,
+      limit: 10
+   };
+
    beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
          controllers: [UserController],
@@ -33,11 +39,11 @@ describe("UserController", () => {
       let users: SelectUserDto[];
 
       beforeEach(async () => {
-         users = await controller.findMany(1, 10);
+         users = await controller.findMany(query);
       });
 
       it("should call userService.findMany with a page number and a limit", () => {
-         expect(service.findMany).toBeCalledWith(1, 10);
+         expect(service.findMany).toBeCalledWith(0, 10);
       });
 
       it("should return a list of user objecst", () => {
@@ -56,7 +62,7 @@ describe("UserController", () => {
          user = await controller.findOneById(userStub().id);
       });
 
-      it("should call userService.findOneById with user id", () => {
+      it("should call userService.findOneById with a user id", () => {
          expect(service.findOneById).toBeCalledWith(userStub().id);
       });
 

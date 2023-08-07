@@ -7,16 +7,21 @@ import { DB_CONNECTION } from "src/constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { mockDbService } from "../__mocks__/database.service";
 import * as schema from "../../database/schemas";
-import { eq } from "drizzle-orm";
+import { eq, placeholder } from "drizzle-orm";
 import { NotFoundException } from "@nestjs/common";
 
 describe("UserService", () => {
    let service: UserService;
    let dbService: LibSQLDatabase<typeof schema>;
 
+   const placeholders = {
+      limit: placeholder("limit"),
+      offset: placeholder("offset")
+   };
+
    const pagination = {
-      limit: 20,
-      offset: 0
+      offset: 0,
+      limit: 20
    };
 
    beforeEach(async () => {
@@ -40,7 +45,7 @@ describe("UserService", () => {
       let usersData: SelectUserDto[];
 
       beforeEach(async () => {
-         usersData = await service.findMany(1, 20);
+         usersData = await service.findMany(0, 20);
       });
 
       it("should be defined", () => {
@@ -48,15 +53,26 @@ describe("UserService", () => {
       });
 
       it("should make a database query to select many users with correct arguments", () => {
-         expect(dbService.query.users.findMany).toBeCalledWith(pagination);
+         expect(dbService.query.users.findMany).toBeCalledWith(placeholders);
+      });
+
+      it("should prepare a statement for future db query", () => {
+         expect(dbService.query.users.findMany().prepare).toBeCalled();
+      });
+
+      it("should call .all method of prepared statement with correct query", () => {
+         expect(dbService.query.users.findMany().prepare().all).toBeCalledWith(
+            pagination
+         );
       });
 
       it("should throw a 404 not found exception when no user is found", async () => {
-         mockDbService.query.users.findMany.mockImplementationOnce(() =>
-            Promise.resolve([])
-         );
+         mockDbService.query.users
+            .findMany()
+            .prepare()
+            .all.mockImplementationOnce(() => Promise.resolve([]));
 
-         await expect(service.findMany(1, 20)).rejects.toThrowError(
+         await expect(service.findMany(0, 20)).rejects.toThrowError(
             NotFoundException
          );
       });
@@ -83,10 +99,19 @@ describe("UserService", () => {
          });
       });
 
+      it("should prepare a statement for future db query", () => {
+         expect(dbService.query.users.findMany().prepare).toBeCalled();
+      });
+
+      it("should call .get method of prepared statement", () => {
+         expect(dbService.query.users.findMany().prepare().get).toBeCalled();
+      });
+
       it("should throw a 404 not found exception when no user is found", async () => {
-         mockDbService.query.users.findFirst.mockImplementationOnce(() =>
-            Promise.resolve(undefined)
-         );
+         mockDbService.query.users
+            .findFirst()
+            .prepare()
+            .get.mockImplementationOnce(() => Promise.resolve(undefined));
 
          await expect(service.findOneById(userStub().id)).rejects.toThrowError(
             NotFoundException
