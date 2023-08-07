@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { DB_CONNECTION } from "src/constants";
-import { ConfigService } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schemas";
@@ -21,6 +21,7 @@ import * as schema from "./schemas";
          }
       }
    ],
+   imports: [ConfigModule],
    exports: [DB_CONNECTION]
 })
 export class DatabaseModule {}
