@@ -7,7 +7,7 @@ import {
 import { userStub } from "./tests/stubs/user.stub";
 import { DB_CONNECTION } from "../constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
-import { eq } from "drizzle-orm";
+import { eq, placeholder } from "drizzle-orm";
 import * as schema from "../database/schemas";
 
 @Injectable()
@@ -17,13 +17,15 @@ export class UserService {
       private readonly dbService: LibSQLDatabase<typeof schema>
    ) {}
 
-   async findMany(page: number, limit: number): Promise<SelectUserDto[]> {
-      const offset = (page - 1) * limit;
-      const users = await this.dbService.query.users.findMany({
-         limit,
-         offset
-      });
+   async findMany(offset: number, limit: number): Promise<SelectUserDto[]> {
+      const prepared = this.dbService.query.users
+         .findMany({
+            limit: placeholder("limit"),
+            offset: placeholder("offset")
+         })
+         .prepare();
 
+      const users = await prepared.all({ limit, offset });
       if (!users.length) throw new NotFoundException();
 
       const result = users.map((user) => SelectUserSchema.parse(user));
@@ -31,10 +33,13 @@ export class UserService {
    }
 
    async findOneById(id: string): Promise<SelectUserDto> {
-      const user = await this.dbService.query.users.findFirst({
-         where: eq(schema.users.id, id)
-      });
+      const prepared = this.dbService.query.users
+         .findFirst({
+            where: eq(schema.users.id, id)
+         })
+         .prepare();
 
+      const user = await prepared.get();
       if (user === undefined) throw new NotFoundException();
 
       const result = SelectUserSchema.parse(user);

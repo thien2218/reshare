@@ -5,28 +5,30 @@ import {
    Put,
    Param,
    Delete,
-   Query,
-   DefaultValuePipe,
-   UsePipes
+   UsePipes,
+   UseInterceptors
 } from "@nestjs/common";
 import {
    UpdateUserDto,
    UpdateUserSchema
 } from "src/database/schemas/user.schema";
 import { UserService } from "./user.service";
-import { PositiveIntPipe } from "src/pipes/positive-int.pipe";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
+import { ParseIntQueryInterceptor } from "src/interceptors/query.interceptor";
+import { TypedQuery } from "src/decorators/typed-query.decorator";
+import { UserQuery, UserQuerySchema } from "src/schemas/query.schema";
+import { ParseQueryPipe } from "src/pipes/query.pipe";
 
 @Controller("user")
 export class UserController {
    constructor(private readonly userService: UserService) {}
 
    @Get()
+   @UseInterceptors(ParseIntQueryInterceptor)
    async findMany(
-      @Query("page", PositiveIntPipe) page: number,
-      @Query("limit", new DefaultValuePipe(20), PositiveIntPipe) limit: number
+      @TypedQuery(new ParseQueryPipe(UserQuerySchema)) query: UserQuery
    ) {
-      return this.userService.findMany(page, limit);
+      return this.userService.findMany(query.offset, query.limit);
    }
 
    @Get(":id")

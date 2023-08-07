@@ -5,7 +5,7 @@ import { userStub, userStubs } from "./stubs/user.stub";
 import { DatabaseModule } from "src/database/database.module";
 import { DB_CONNECTION } from "src/constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
-import { mockDbService } from "../__mocks__/dbService";
+import { mockDbService } from "../__mocks__/database.service";
 import * as schema from "../../database/schemas";
 import { eq } from "drizzle-orm";
 import { NotFoundException } from "@nestjs/common";

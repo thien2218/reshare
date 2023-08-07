@@ -26,7 +26,12 @@ export const CreateUserSchema = createInsertSchema(users, {
    photoUrl: z.string().url(),
    bio: z.string().max(500)
 })
-   .omit({ encryptedPassword: true, createdAt: true, updatedAt: true })
+   .omit({
+      id: true,
+      encryptedPassword: true,
+      createdAt: true,
+      updatedAt: true
+   })
    .extend({
       password: z.string().min(6).max(24).optional(),
       confirmPw: z.string().min(6).max(24).optional()

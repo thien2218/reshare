@@ -14,11 +14,11 @@ export class ParseIntQueryInterceptor implements NestInterceptor {
 
       // Transform the limit from string to integer
       if (query.limit) {
-         query.limit = parseInt(query.limit);
+         query.limit = parseInt(query.limit, 10);
       }
       // Add a property called "offset" and remove the page property
       if (query.page) {
-         query.page = parseInt(query.page);
+         query.page = parseInt(query.page, 10);
          query.offset = (query.page - 1) * query.limit;
          delete query.page;
       }
