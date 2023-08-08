@@ -6,7 +6,9 @@ import {
    Param,
    Delete,
    UsePipes,
-   UseInterceptors
+   UseInterceptors,
+   HttpCode,
+   HttpStatus
 } from "@nestjs/common";
 import {
    SelectUserDto,
@@ -46,6 +48,7 @@ export class UserController {
       return this.userService.update(id, updateUserDto);
    }
 
+   @HttpCode(HttpStatus.NO_CONTENT)
    @Delete(":id")
    async remove(@Param("id") id: string): Promise<string> {
       return this.userService.remove(id);

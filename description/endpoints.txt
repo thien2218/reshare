@@ -2,6 +2,7 @@
    POST /auth/signup: Sign up a new user.
    POST /auth/signin: Sign in a user.
    POST /auth/signout: Sign out a user.
+   POST /auth/refresh: Request a new access and refresh token for a user.
 
 2. User profiles:
    GET    /users?search={search}&page={page}&limit={limit}: Retrieves users searched through a query.
