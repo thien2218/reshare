@@ -10,7 +10,7 @@ CREATE TABLE `users` (
 	`bio` text,
 	`created_at` text NOT NULL,
 	`updated_at` text NOT NULL,
-	`refresh_token` text NOT NULL,
+	`refresh_token` text,
 	`provider` text DEFAULT 'email'
 );
 --> statement-breakpoint

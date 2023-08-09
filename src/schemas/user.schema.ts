@@ -12,7 +12,7 @@ const users = sqliteTable("users", {
    emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
    createdAt: text("created_at").notNull(),
    updatedAt: text("updated_at").notNull(),
-   refreshToken: text("refresh_token").notNull(),
+   refreshToken: text("refresh_token"),
    encryptedPassword: text("encrypted_password"),
    photoUrl: text("photo_url"),
    bio: text("bio"),
@@ -70,7 +70,13 @@ export const UpdateUserSchema = SelectUserSchema.partial()
       message: "At least one property must be present"
    });
 
+export const SigninUserSchema = z.object({
+   email: z.string().email(),
+   password: z.string()
+});
+
 // DTOs
 export type CreateUserDto = z.output<typeof CreateUserSchema>;
 export type SelectUserDto = z.infer<typeof SelectUserSchema>;
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
+export type SigninUserDto = z.infer<typeof SigninUserSchema>;

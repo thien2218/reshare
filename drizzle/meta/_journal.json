@@ -1,13 +1,13 @@
 {
-  "version": "5",
-  "dialect": "sqlite",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1691577654244,
-      "tag": "0000_fearless_jack_murdock",
-      "breakpoints": true
-    }
-  ]
+   "version": "5",
+   "dialect": "sqlite",
+   "entries": [
+      {
+         "idx": 0,
+         "version": "5",
+         "when": 1691577654244,
+         "tag": "0000_fearless_jack_murdock",
+         "breakpoints": true
+      }
+   ]
 }

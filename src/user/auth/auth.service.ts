@@ -1,23 +1,25 @@
-import {
-   BadRequestException,
-   Inject,
-   Injectable,
-   InternalServerErrorException
-} from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { JwtService } from "@nestjs/jwt";
 import { nanoid } from "nanoid";
 import * as bcrypt from "bcrypt";
 import { DB_CONNECTION } from "src/constants";
-import { CreateUserDto } from "src/schemas/user.schema";
-import { UserPayload } from "src/decorators/user.decorator";
+import { CreateUserDto, SigninUserDto } from "src/schemas/user.schema";
 import * as schema from "../../schemas";
 import { LibsqlError } from "@libsql/client";
+import { eq, placeholder } from "drizzle-orm";
 
 export type Tokens = {
    accessToken: string;
    refreshToken: string;
+};
+
+type User = {
+   id: string;
+   email: string;
+   firstName: string;
+   lastName: string;
 };
 
 @Injectable()
@@ -45,20 +47,14 @@ export class AuthService {
          encryptedPassword
       };
 
-      const payload = {
-         sub: values.id,
-         email: values.email,
-         first_name: values.firstName,
-         last_name: values.lastName
-      };
-
-      const tokens = await this.generateTokens(payload);
+      const tokens = await this.generateTokens(values);
+      const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
       await this.dbService
          .insert(schema.users)
          .values({
             ...values,
-            refreshToken: tokens.refreshToken
+            refreshToken
          })
          .run()
          .catch((err) => {
@@ -68,7 +64,30 @@ export class AuthService {
       return tokens;
    }
 
-   async signin() {}
+   async signin({ email, password }: SigninUserDto): Promise<Tokens> {
+      const prepared = this.dbService.query.users
+         .findFirst({
+            where: eq(schema.users.email, placeholder("email"))
+         })
+         .prepare();
+
+      const user = await prepared.get({ email });
+
+      if (!user) {
+         throw new BadRequestException("Incorrect email or password");
+      }
+
+      const isValidPw = await bcrypt.compare(
+         password,
+         user.encryptedPassword as string
+      );
+
+      if (!isValidPw) {
+         throw new BadRequestException("Incorrect email or password");
+      }
+
+      return this.generateTokens(user);
+   }
 
    async signout() {}
 
@@ -76,17 +95,22 @@ export class AuthService {
 
    // PRIVATE
 
-   private async generateTokens(payload: UserPayload): Promise<Tokens> {
+   private async generateTokens(user: User): Promise<Tokens> {
+      const payload = {
+         sub: user.id,
+         email: user.email,
+         first_name: user.firstName,
+         last_name: user.lastName
+      };
+
       const [accessToken, refreshToken] = await Promise.all([
          this.jwtService.signAsync(payload, {
             secret: this.configService.get<string>("ACCESS_TOKEN_SECRET"),
-            expiresIn: this.configService.get<string>("ACCESS_TOKEN_EXPIRES_IN")
+            expiresIn: 60 * 15
          }),
          this.jwtService.signAsync(payload, {
             secret: this.configService.get<string>("REFRESH_TOKEN_SECRET"),
-            expiresIn: this.configService.get<string>(
-               "REFRESH_TOKEN_EXPIRES_IN"
-            )
+            expiresIn: 60 * 60 * 24 * 15
          })
       ]);
 
