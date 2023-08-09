@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import {
+   BadRequestException,
+   Inject,
+   Injectable,
+   InternalServerErrorException
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { JwtService } from "@nestjs/jwt";
@@ -8,6 +13,7 @@ import { DB_CONNECTION } from "src/constants";
 import { CreateUserDto } from "src/schemas/user.schema";
 import { UserPayload } from "src/decorators/user.decorator";
 import * as schema from "../../schemas";
+import { LibsqlError } from "@libsql/client";
 
 export type Tokens = {
    accessToken: string;
@@ -17,22 +23,25 @@ export type Tokens = {
 @Injectable()
 export class AuthService {
    constructor(
-      @Inject(DB_CONNECTION) private readonly dbService: LibSQLDatabase,
+      @Inject(DB_CONNECTION)
+      private readonly dbService: LibSQLDatabase<typeof schema>,
       private readonly configService: ConfigService,
       private readonly jwtService: JwtService
    ) {}
 
    // PUBLIC
 
-   async signup(createUserDto: CreateUserDto): Promise<Tokens> {
-      const encryptedPassword = await bcrypt.hash(createUserDto.password, 12);
+   async signup({ password, ...dto }: CreateUserDto): Promise<Tokens> {
+      const encryptedPassword = await bcrypt.hash(password, 12);
       const now = new Date();
+      now.setMilliseconds(0);
 
       const values = {
          id: nanoid(25),
-         ...createUserDto,
-         createdAt: now.toUTCString(),
-         updatedAt: now.toUTCString(),
+         ...dto,
+         createdAt: now.toISOString().replace(".000", ""),
+         updatedAt: now.toISOString().replace(".000", ""),
+         emailVerified: false,
          encryptedPassword
       };
 
@@ -45,19 +54,16 @@ export class AuthService {
 
       const tokens = await this.generateTokens(payload);
 
-      const result = await this.dbService
+      await this.dbService
          .insert(schema.users)
          .values({
             ...values,
             refreshToken: tokens.refreshToken
          })
-         .run();
-
-      console.log(result);
-
-      if (!result) {
-         throw new BadRequestException();
-      }
+         .run()
+         .catch((err) => {
+            if (err instanceof LibsqlError) this.handleSignupErr(err);
+         });
 
       return tokens;
    }
@@ -85,5 +91,18 @@ export class AuthService {
       ]);
 
       return { accessToken, refreshToken };
+   }
+
+   private handleSignupErr(err: LibsqlError) {
+      const splitErr = err.message.split(": ");
+      const field = splitErr[splitErr.length - 1].split(".")[1];
+      const reason = splitErr[splitErr.length - 2];
+
+      const message = {
+         reason,
+         field
+      };
+
+      throw new BadRequestException([message]);
    }
 }

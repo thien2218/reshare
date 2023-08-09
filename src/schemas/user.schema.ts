@@ -9,13 +9,13 @@ const users = sqliteTable("users", {
    email: text("email").unique().notNull(),
    firstName: text("first_name").notNull(),
    lastName: text("last_name").notNull(),
-   encryptedPassword: text("encrypted_password"),
-   emailVerified: integer("email_verified", { mode: "boolean" }),
-   photoUrl: text("photo_url"),
-   bio: text("bio"),
+   emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
    createdAt: text("created_at").notNull(),
    updatedAt: text("updated_at").notNull(),
    refreshToken: text("refresh_token").notNull(),
+   encryptedPassword: text("encrypted_password"),
+   photoUrl: text("photo_url"),
+   bio: text("bio"),
    provider: text("provider").default("email")
 });
 
@@ -37,7 +37,8 @@ export const CreateUserSchema = createInsertSchema(users, {
       createdAt: true,
       updatedAt: true,
       refreshToken: true,
-      provider: true
+      provider: true,
+      emailVerified: true
    })
    .extend({
       password: z.string().min(6).max(24),
@@ -55,7 +56,9 @@ export const CreateUserSchema = createInsertSchema(users, {
 export const SelectUserSchema = createSelectSchema(users).omit({
    createdAt: true,
    updatedAt: true,
-   encryptedPassword: true
+   encryptedPassword: true,
+   refreshToken: true,
+   provider: true
 });
 
 export const UpdateUserSchema = SelectUserSchema.partial()

@@ -1,27 +1,13 @@
 {
-   "version": "5",
-   "dialect": "sqlite",
-   "entries": [
-      {
-         "idx": 0,
-         "version": "5",
-         "when": 1691397824256,
-         "tag": "0000_many_spectrum",
-         "breakpoints": true
-      },
-      {
-         "idx": 1,
-         "version": "5",
-         "when": 1691415024624,
-         "tag": "0001_fearless_dracula",
-         "breakpoints": true
-      },
-      {
-         "idx": 2,
-         "version": "5",
-         "when": 1691556154657,
-         "tag": "0002_burly_switch",
-         "breakpoints": true
-      }
-   ]
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1691577654244,
+      "tag": "0000_fearless_jack_murdock",
+      "breakpoints": true
+    }
+  ]
 }

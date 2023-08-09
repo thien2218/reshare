@@ -34,7 +34,7 @@
       "drizzle-orm": "^0.27.2",
       "drizzle-zod": "^0.4.4",
       "fastify": "^4.21.0",
-      "nanoid": "^4.0.2",
+      "nanoid": "^3.3.6",
       "passport-google-oauth20": "^2.0.0",
       "passport-jwt": "^4.0.1",
       "reflect-metadata": "^0.1.13",

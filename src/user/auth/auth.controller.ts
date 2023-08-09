@@ -1,10 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
-import { AuthService } from "./auth.service";
+import { AuthService, Tokens } from "./auth.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
-import {
-   CreateUserDto,
-   CreateUserSchema
-} from "src/database/schemas/user.schema";
+import { CreateUserDto, CreateUserSchema } from "src/schemas/user.schema";
 
 @Controller("auth")
 export class AuthController {
@@ -15,7 +12,7 @@ export class AuthController {
    async signup(
       @Body(new ZodValidationPipe(CreateUserSchema))
       createUserDto: CreateUserDto
-   ) {
+   ): Promise<Tokens> {
       return this.authService.signup(createUserDto);
    }
 

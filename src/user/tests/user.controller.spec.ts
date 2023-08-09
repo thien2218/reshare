@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "../user.controller";
 import { UserService } from "../user.service";
 import { userStub, userStubs, userUpdateStub } from "./user.stub";
-import { SelectUserDto } from "src/database/schemas/user.schema";
+import { SelectUserDto } from "src/schemas/user.schema";
 
 jest.mock("../user.service");
 
@@ -46,7 +46,7 @@ describe("UserController", () => {
          expect(service.findMany).toBeCalledWith(0, 10);
       });
 
-      it("should return a list of user objecst", () => {
+      it("should return a list of user objects", () => {
          expect(users).toEqual(userStubs());
       });
    });
@@ -106,7 +106,7 @@ describe("UserController", () => {
          expect(service.remove).toBeCalledWith(userStub().id);
       });
 
-      it("should return a user object", () => {
+      it("should return a message after deletion", () => {
          expect(message).toEqual("User deleted successfully!");
       });
    });

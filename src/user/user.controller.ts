@@ -14,7 +14,7 @@ import {
    SelectUserDto,
    UpdateUserDto,
    UpdateUserSchema
-} from "src/database/schemas/user.schema";
+} from "src/schemas/user.schema";
 import { UserService } from "./user.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 import { ParseIntQueryInterceptor } from "src/interceptors/query.interceptor";
