@@ -15,7 +15,7 @@ const users = sqliteTable("users", {
    bio: text("bio"),
    createdAt: text("created_at").notNull(),
    updatedAt: text("updated_at").notNull(),
-   refreshToken: text("refresh_token"),
+   refreshToken: text("refresh_token").notNull(),
    provider: text("provider").default("email")
 });
 

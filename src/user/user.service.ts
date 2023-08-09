@@ -8,11 +8,11 @@ import {
    SelectUserDto,
    SelectUserSchema,
    UpdateUserDto
-} from "src/database/schemas/user.schema";
+} from "src/schemas/user.schema";
 import { DB_CONNECTION } from "../constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { eq, placeholder } from "drizzle-orm";
-import * as schema from "../database/schemas";
+import * as schema from "../schemas";
 
 @Injectable()
 export class UserService {

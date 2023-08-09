@@ -1,12 +1,12 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserService } from "../user.service";
-import { SelectUserDto, UpdateUserDto } from "src/database/schemas/user.schema";
+import { SelectUserDto, UpdateUserDto } from "src/schemas/user.schema";
 import { userStub, userStubs } from "./user.stub";
 import { DatabaseModule } from "src/database/database.module";
 import { DB_CONNECTION } from "src/constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { MockDbService } from "../__mocks__/database.service";
-import * as schema from "../../database/schemas";
+import * as schema from "../../schemas";
 import { eq, placeholder } from "drizzle-orm";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 
@@ -127,7 +127,7 @@ describe("UserService", () => {
 
       beforeEach(async () => {
          id = "testId";
-         updateUserDto = { name: "testName" };
+         updateUserDto = { firstName: "testName" };
          selectUserDto = await service.update(id, updateUserDto);
       });
 

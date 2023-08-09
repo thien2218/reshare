@@ -1,12 +1,13 @@
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
-import { DB_CONNECTION } from "src/constants";
-import { CreateUserDto } from "src/database/schemas/user.schema";
 import { JwtService } from "@nestjs/jwt";
-import { UserPayload } from "src/decorators/user.decorator";
+import { nanoid } from "nanoid";
 import * as bcrypt from "bcrypt";
-import * as schema from "../../database/schemas";
+import { DB_CONNECTION } from "src/constants";
+import { CreateUserDto } from "src/schemas/user.schema";
+import { UserPayload } from "src/decorators/user.decorator";
+import * as schema from "../../schemas";
 
 export type Tokens = {
    accessToken: string;
@@ -27,33 +28,38 @@ export class AuthService {
       const encryptedPassword = await bcrypt.hash(createUserDto.password, 12);
       const now = new Date();
 
-      const user = await this.dbService
+      const values = {
+         id: nanoid(25),
+         ...createUserDto,
+         createdAt: now.toUTCString(),
+         updatedAt: now.toUTCString(),
+         encryptedPassword
+      };
+
+      const payload = {
+         sub: values.id,
+         email: values.email,
+         first_name: values.firstName,
+         last_name: values.lastName
+      };
+
+      const tokens = await this.generateTokens(payload);
+
+      const result = await this.dbService
          .insert(schema.users)
          .values({
-            // TODO: Replace this with an ID generator
-            id: "some_random_id",
-            ...createUserDto,
-            createdAt: now.toUTCString(),
-            updatedAt: now.toUTCString(),
-            encryptedPassword
+            ...values,
+            refreshToken: tokens.refreshToken
          })
-         .returning()
-         .get();
+         .run();
 
-      console.log(user);
+      console.log(result);
 
-      if (!user) {
+      if (!result) {
          throw new BadRequestException();
       }
 
-      const payload = {
-         sub: user.id,
-         email: user.email,
-         first_name: user.firstName,
-         last_name: user.lastName
-      };
-
-      return this.generateTokens(payload);
+      return tokens;
    }
 
    async signin() {}
@@ -67,11 +73,14 @@ export class AuthService {
    private async generateTokens(payload: UserPayload): Promise<Tokens> {
       const [accessToken, refreshToken] = await Promise.all([
          this.jwtService.signAsync(payload, {
-            secret: this.configService.get<string>("ACCESS_TOKEN_SECRET")
+            secret: this.configService.get<string>("ACCESS_TOKEN_SECRET"),
+            expiresIn: this.configService.get<string>("ACCESS_TOKEN_EXPIRES_IN")
          }),
          this.jwtService.signAsync(payload, {
             secret: this.configService.get<string>("REFRESH_TOKEN_SECRET"),
-            expiresIn: 60 * 60 * 24 * 7
+            expiresIn: this.configService.get<string>(
+               "REFRESH_TOKEN_EXPIRES_IN"
+            )
          })
       ]);
 
