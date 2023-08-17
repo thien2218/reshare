@@ -9,6 +9,7 @@ import { CreateUserDto, SigninUserDto } from "src/schemas/user.schema";
 import * as schema from "../../schemas";
 import { LibsqlError } from "@libsql/client";
 import { eq, placeholder } from "drizzle-orm";
+import { RefreshPayload, UserPayload } from "src/decorators/user.decorator";
 
 export type Tokens = {
    accessToken: string;
@@ -89,9 +90,57 @@ export class AuthService {
       return this.generateTokens(user);
    }
 
-   async signout() {}
+   async signout(user: UserPayload): Promise<string> {
+      await this.dbService
+         .update(schema.users)
+         .set({ refreshToken: null })
+         .where(eq(schema.users.id, user.sub))
+         .run()
+         .catch((err) => {
+            if (err instanceof LibsqlError) this.handleSignupErr(err);
+         });
 
-   async refresh() {}
+      return "User successfully signed out";
+   }
+
+   async refresh(user: RefreshPayload, tokenExpired: boolean): Promise<Tokens> {
+      const prepared = this.dbService.query.users
+         .findFirst({
+            where: eq(schema.users.id, placeholder("id"))
+         })
+         .prepare();
+
+      const dbUser = await prepared.get({ id: user.sub });
+
+      if (!dbUser) {
+         throw new BadRequestException("Invalid refresh token");
+      }
+
+      const isValidRefreshToken = await bcrypt.compare(
+         user.refresh_token,
+         dbUser.refreshToken as string
+      );
+
+      if (!isValidRefreshToken) {
+         throw new BadRequestException("Invalid refresh token");
+      }
+
+      const tokens = await this.generateTokens(dbUser);
+
+      if (tokenExpired) {
+         const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+
+         await this.dbService
+            .update(schema.users)
+            .set({ refreshToken })
+            .run()
+            .catch((err) => {
+               if (err instanceof LibsqlError) this.handleSignupErr(err);
+            });
+      }
+
+      return tokens;
+   }
 
    // PRIVATE
 

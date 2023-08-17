@@ -9,6 +9,11 @@ export type UserPayload = {
    refresh_token?: string;
 };
 
+export type RefreshPayload = UserPayload & {
+   refresh_token: string;
+   exp: number;
+};
+
 export const User = createParamDecorator((_, ctx: ExecutionContext) => {
    const req = ctx.switchToHttp().getRequest();
    return req.user;

@@ -1,10 +1,14 @@
 PENDING:
-- Add types
-- Get the user from the request
-- Write failing tests for user and auth module to set expectation
-- Implement functions to pass the tests
+- Add types and schema for resource entity
+- Push changes to database
+- Write failing tests for auth module
+- Implement functions to pass the tests for auth module
 
 FINISHED:
+- Implement functions to pass the tests for user module
+- Write failing tests for user module
+- Add types for user entity
+- Get the user from the request
 - Implement sign up/sign in flow with access token and refresh token
 - Learn how to write tests
 
