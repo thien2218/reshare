@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 export const MockConfigService = {
    get: jest.fn().mockImplementation((key: string) => {

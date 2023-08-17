@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import * as dotenv from "dotenv";
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 const url = process.env.DATABASE_URL as string;
 const authToken = process.env.DATABASE_AUTH_TOKEN as string;

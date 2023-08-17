@@ -1,7 +1,7 @@
 import type { Config } from "drizzle-kit";
 import * as dotenv from "dotenv"
 
-dotenv.config({ path: ".env.local" })
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
  
 export default {
    schema: "./src/schemas",

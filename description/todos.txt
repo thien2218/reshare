@@ -1,6 +1,13 @@
+PENDING:
 - Add types
-- Learn how to write tests
+- Get the user from the request
 - Write failing tests for user and auth module to set expectation
+- Implement functions to pass the tests
+
+FINISHED:
+- Implement sign up/sign in flow with access token and refresh token
+- Learn how to write tests
+
+FAILED:
 - Learn about session auth
 - Intergrate Lucia-auth with NestJS
-- Implement functions to pass the tests
