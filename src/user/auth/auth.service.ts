@@ -51,16 +51,14 @@ export class AuthService {
       const tokens = await this.generateTokens(values);
       const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
-      await this.dbService
+      const prepared = this.dbService
          .insert(schema.users)
-         .values({
-            ...values,
-            refreshToken
-         })
-         .run()
-         .catch((err) => {
-            if (err instanceof LibsqlError) this.handleDbError(err);
-         });
+         .values(this.userInsertPlaceholder())
+         .prepare();
+
+      await prepared.run({ ...values, refreshToken }).catch((err) => {
+         if (err instanceof LibsqlError) this.handleDbError(err);
+      });
 
       return tokens;
    }
@@ -176,6 +174,21 @@ export class AuthService {
       }
 
       return user;
+   }
+
+   private userInsertPlaceholder() {
+      return {
+         id: placeholder("id"),
+         email: placeholder("email"),
+         username: placeholder("username"),
+         firstName: placeholder("firstName"),
+         lastName: placeholder("lastName"),
+         emailVerified: placeholder("emailVerified"),
+         encryptedPassword: placeholder("encryptedPassword"),
+         createdAt: placeholder("createdAt"),
+         updatedAt: placeholder("updatedAt"),
+         refreshToken: placeholder("refreshToken")
+      };
    }
 
    private handleDbError(err: LibsqlError) {
