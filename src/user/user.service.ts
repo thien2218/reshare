@@ -39,12 +39,12 @@ export class UserService {
    async findOneById(id: string): Promise<SelectUserDto> {
       const prepared = this.dbService.query.users
          .findFirst({
-            where: eq(schema.users.id, id)
+            where: eq(schema.users.id, placeholder("id"))
          })
          .prepare();
 
-      const user = await prepared.get();
-      if (user === undefined) throw new NotFoundException();
+      const user = await prepared.get({ id });
+      if (!user) throw new NotFoundException();
 
       const result = SelectUserSchema.parse(user);
       return result;

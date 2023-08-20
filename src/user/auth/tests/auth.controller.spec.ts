@@ -19,7 +19,7 @@ describe("AuthController", () => {
    let service: AuthService;
 
    const tokens = tokensStub();
-   const response = {
+   const res = {
       setCookie: jest.fn(),
       send: jest.fn()
    } as any;
@@ -44,7 +44,7 @@ describe("AuthController", () => {
 
       beforeEach(async () => {
          createUserDto = createUserStub();
-         await controller.signup(createUserDto, response);
+         await controller.signup(createUserDto, res);
       });
 
       it("should be defined", () => {
@@ -56,7 +56,7 @@ describe("AuthController", () => {
       });
 
       it("should set cookie with correct params", () => {
-         expect(response.setCookie).toBeCalledWith(
+         expect(res.setCookie).toBeCalledWith(
             "reshare-refresh-token",
             tokens.refreshToken,
             {
@@ -67,8 +67,8 @@ describe("AuthController", () => {
          );
       });
 
-      it("should send response with correct data", () => {
-         expect(response.send).toBeCalledWith(tokens);
+      it("should send res with correct data", () => {
+         expect(res.send).toBeCalledWith(tokens);
       });
    });
 
@@ -77,7 +77,7 @@ describe("AuthController", () => {
 
       beforeEach(async () => {
          signinUserDto = signInUserStub();
-         await controller.signin(signinUserDto, response);
+         await controller.signin(signinUserDto, res);
       });
 
       it("should be defined", () => {
@@ -88,8 +88,8 @@ describe("AuthController", () => {
          expect(service.signin).toBeCalledWith(signinUserDto);
       });
 
-      it("should call setCookie method of response with correct params", () => {
-         expect(response.setCookie).toBeCalledWith(
+      it("should call setCookie method of res with correct params", () => {
+         expect(res.setCookie).toBeCalledWith(
             "reshare-refresh-token",
             tokens.refreshToken,
             {
@@ -100,8 +100,8 @@ describe("AuthController", () => {
          );
       });
 
-      it("should call send method of response with correct params", () => {
-         expect(response.send).toBeCalledWith(tokens);
+      it("should call send method of res with correct params", () => {
+         expect(res.send).toBeCalledWith(tokens);
       });
    });
 
@@ -127,7 +127,7 @@ describe("AuthController", () => {
 
       beforeEach(async () => {
          refreshPayload = refreshPayloadSetNewStub();
-         await controller.refresh(refreshPayload, response);
+         await controller.refresh(refreshPayload, res);
       });
 
       it("should be defined", () => {
@@ -138,8 +138,8 @@ describe("AuthController", () => {
          expect(service.refresh).toBeCalledWith(refreshPayload, true);
       });
 
-      it("should call setCookie method of response with correct params", () => {
-         expect(response.setCookie).toBeCalledWith(
+      it("should call setCookie method of res with correct params", () => {
+         expect(res.setCookie).toBeCalledWith(
             "reshare-refresh-token",
             tokens.refreshToken,
             {
@@ -150,13 +150,13 @@ describe("AuthController", () => {
          );
       });
 
-      it("should call send method of response with correct params", () => {
-         expect(response.send).toBeCalledWith(tokens);
+      it("should call send method of res with correct params", () => {
+         expect(res.send).toBeCalledWith(tokens);
       });
 
       it("should return access token if refresh token is still fresh", async () => {
          refreshPayload = refreshPayloadStub();
-         await controller.refresh(refreshPayload, response);
+         await controller.refresh(refreshPayload, res);
          expect(service.refresh).toBeCalledWith(refreshPayload, false);
       });
    });

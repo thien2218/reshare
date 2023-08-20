@@ -19,8 +19,10 @@ export type Tokens = {
 type User = {
    id: string;
    email: string;
+   username: string;
    firstName: string;
    lastName: string;
+   emailVerified: boolean;
 };
 
 @Injectable()
@@ -32,16 +34,14 @@ export class AuthService {
       private readonly jwtService: JwtService
    ) {}
 
-   // PUBLIC
-
-   async signup({ password, ...dto }: CreateUserDto): Promise<Tokens> {
+   async signup({ password, ...data }: CreateUserDto): Promise<Tokens> {
       const encryptedPassword = await bcrypt.hash(password, 12);
       const now = new Date();
       now.setMilliseconds(0);
 
       const values = {
          id: nanoid(25),
-         ...dto,
+         ...data,
          createdAt: now.toISOString().replace(".000", ""),
          updatedAt: now.toISOString().replace(".000", ""),
          emailVerified: false,
@@ -59,7 +59,7 @@ export class AuthService {
          })
          .run()
          .catch((err) => {
-            if (err instanceof LibsqlError) this.handleSignupErr(err);
+            if (err instanceof LibsqlError) this.handleDbError(err);
          });
 
       return tokens;
@@ -90,42 +90,27 @@ export class AuthService {
       return this.generateTokens(user);
    }
 
-   async signout(user: UserPayload): Promise<string> {
+   async signout({ sub, refresh_token }: RefreshPayload): Promise<string> {
+      await this.checkRefreshToken(sub, refresh_token);
+
       await this.dbService
          .update(schema.users)
          .set({ refreshToken: null })
-         .where(eq(schema.users.id, user.sub))
+         .where(eq(schema.users.id, sub))
          .run()
          .catch((err) => {
-            if (err instanceof LibsqlError) this.handleSignupErr(err);
+            if (err instanceof LibsqlError) this.handleDbError(err);
          });
 
       return "User successfully signed out";
    }
 
-   async refresh(user: RefreshPayload, tokenExpired: boolean): Promise<Tokens> {
-      const prepared = this.dbService.query.users
-         .findFirst({
-            where: eq(schema.users.id, placeholder("id"))
-         })
-         .prepare();
-
-      const dbUser = await prepared.get({ id: user.sub });
-
-      if (!dbUser) {
-         throw new BadRequestException("Invalid refresh token");
-      }
-
-      const isValidRefreshToken = await bcrypt.compare(
-         user.refresh_token,
-         dbUser.refreshToken as string
-      );
-
-      if (!isValidRefreshToken) {
-         throw new BadRequestException("Invalid refresh token");
-      }
-
-      const tokens = await this.generateTokens(dbUser);
+   async refresh(
+      { sub, refresh_token }: RefreshPayload,
+      tokenExpired: boolean
+   ): Promise<Tokens> {
+      const user = await this.checkRefreshToken(sub, refresh_token);
+      const tokens = await this.generateTokens(user);
 
       if (tokenExpired) {
          const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
@@ -135,7 +120,7 @@ export class AuthService {
             .set({ refreshToken })
             .run()
             .catch((err) => {
-               if (err instanceof LibsqlError) this.handleSignupErr(err);
+               if (err instanceof LibsqlError) this.handleDbError(err);
             });
       }
 
@@ -145,11 +130,13 @@ export class AuthService {
    // PRIVATE
 
    private async generateTokens(user: User): Promise<Tokens> {
-      const payload = {
+      const payload: UserPayload = {
          sub: user.id,
          email: user.email,
+         username: user.username,
          first_name: user.firstName,
-         last_name: user.lastName
+         last_name: user.lastName,
+         email_verified: user.emailVerified
       };
 
       const [accessToken, refreshToken] = await Promise.all([
@@ -166,7 +153,32 @@ export class AuthService {
       return { accessToken, refreshToken };
    }
 
-   private handleSignupErr(err: LibsqlError) {
+   private async checkRefreshToken(sub: string, refreshToken: string) {
+      const prepared = this.dbService.query.users
+         .findFirst({
+            where: eq(schema.users.id, placeholder("id"))
+         })
+         .prepare();
+
+      const user = await prepared.get({ id: sub });
+
+      if (!user) {
+         throw new BadRequestException("Invalid refresh token");
+      }
+
+      const isValidRefreshToken = await bcrypt.compare(
+         refreshToken,
+         user.refreshToken as string
+      );
+
+      if (!isValidRefreshToken) {
+         throw new BadRequestException("Invalid refresh token");
+      }
+
+      return user;
+   }
+
+   private handleDbError(err: LibsqlError) {
       const splitErr = err.message.split(": ");
       const field = splitErr[splitErr.length - 1].split(".")[1];
       const reason = splitErr[splitErr.length - 2];
