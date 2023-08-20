@@ -5,8 +5,6 @@ export type UserPayload = {
    first_name: string;
    last_name: string;
    email: string;
-   // Only appear upon refresh requests
-   refresh_token?: string;
 };
 
 export type RefreshPayload = UserPayload & {
@@ -14,7 +12,7 @@ export type RefreshPayload = UserPayload & {
    exp: number;
 };
 
-export const User = createParamDecorator((_, ctx: ExecutionContext) => {
+export const Payload = createParamDecorator((_, ctx: ExecutionContext) => {
    const req = ctx.switchToHttp().getRequest();
-   return req.user;
+   return req.payload;
 });

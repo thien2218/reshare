@@ -1,4 +1,4 @@
-import { ExtractJwt, Strategy } from "passport-jwt";
+import { ExtractJwt, Strategy, VerifiedCallback } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -22,10 +22,12 @@ export class RefreshStrategy extends PassportStrategy(Strategy, "refresh") {
       });
    }
 
-   async validate(req: FastifyRequest, payload: any) {
-      return {
-         ...payload,
-         refresh_token: req.cookies["reshare-refresh-token"]
-      };
+   async validate(req: FastifyRequest, payload: any, done: VerifiedCallback) {
+      done(null, {
+         payload: {
+            ...payload,
+            refresh_token: req.cookies["reshare-refresh-token"]
+         }
+      });
    }
 }

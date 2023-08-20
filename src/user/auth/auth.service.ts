@@ -9,7 +9,7 @@ import { CreateUserDto, SigninUserDto } from "src/schemas/user.schema";
 import * as schema from "../../schemas";
 import { LibsqlError } from "@libsql/client";
 import { eq, placeholder } from "drizzle-orm";
-import { RefreshPayload, UserPayload } from "src/decorators/user.decorator";
+import { RefreshPayload, UserPayload } from "src/decorators/payload.decorator";
 
 export type Tokens = {
    accessToken: string;

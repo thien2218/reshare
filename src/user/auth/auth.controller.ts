@@ -14,10 +14,10 @@ import {
    SigninUserSchema
 } from "src/schemas/user.schema";
 import {
+   Payload,
    RefreshPayload,
-   User,
    UserPayload
-} from "src/decorators/user.decorator";
+} from "src/decorators/payload.decorator";
 import { FastifyReply } from "fastify";
 import { AuthService, Tokens } from "./auth.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
@@ -63,23 +63,23 @@ export class AuthController {
    }
 
    @Post("signout")
-   async signout(@User() user: UserPayload) {
-      return this.authService.signout(user);
+   async signout(@Payload() payload: UserPayload): Promise<string> {
+      return this.authService.signout(payload);
    }
 
    @UseGuards(RefreshGuard)
    @Post("refresh")
    async refresh(
-      @User() user: RefreshPayload,
+      @Payload() payload: RefreshPayload,
       @Res() response: FastifyReply
-   ): Promise<Tokens | { accessToken: string }> {
+   ): Promise<void | { accessToken: string }> {
       // Check if the user's refresh token expires in less than 7 days (in seconds)
       // If so, generate a new refresh token and set it to cookie
       // Otherwise, just return a new access token
       const now = (new Date().getTime() / 1000) | 0;
 
-      if (user.exp - now < 60 * 60 * 24 * 7) {
-         const tokens = await this.authService.refresh(user, true);
+      if (payload.exp - now < 60 * 60 * 24 * 7) {
+         const tokens = await this.authService.refresh(payload, true);
 
          response.setCookie("reshare-refresh-token", tokens.refreshToken, {
             httpOnly: true,
@@ -87,9 +87,9 @@ export class AuthController {
             sameSite: "lax"
          });
 
-         return tokens;
+         response.send(tokens);
       } else {
-         const { accessToken } = await this.authService.refresh(user, true);
+         const { accessToken } = await this.authService.refresh(payload, false);
          return { accessToken };
       }
    }
