@@ -1,13 +1,20 @@
 {
-   "version": "5",
-   "dialect": "sqlite",
-   "entries": [
-      {
-         "idx": 0,
-         "version": "5",
-         "when": 1691577654244,
-         "tag": "0000_fearless_jack_murdock",
-         "breakpoints": true
-      }
-   ]
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1691577654244,
+      "tag": "0000_fearless_jack_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1692632440006,
+      "tag": "0001_groovy_chronomancer",
+      "breakpoints": true
+    }
+  ]
 }

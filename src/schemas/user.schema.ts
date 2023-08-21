@@ -10,13 +10,15 @@ const users = sqliteTable("users", {
    firstName: text("first_name").notNull(),
    lastName: text("last_name").notNull(),
    emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
-   createdAt: text("created_at").notNull(),
-   updatedAt: text("updated_at").notNull(),
+   provider: text("provider").notNull().default("email"),
    refreshToken: text("refresh_token"),
    encryptedPassword: text("encrypted_password"),
+
    photoUrl: text("photo_url"),
    bio: text("bio"),
-   provider: text("provider").default("email")
+
+   createdAt: text("created_at").notNull(),
+   updatedAt: text("updated_at").notNull()
 });
 
 export default users;

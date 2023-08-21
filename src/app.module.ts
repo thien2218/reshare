@@ -2,6 +2,8 @@ import { Module } from "@nestjs/common";
 import { UserModule } from "./user/user.module";
 import { DatabaseModule } from "./database/database.module";
 import { ConfigModule } from "@nestjs/config";
+import { ArticleModule } from './article/article.module';
+import { ArticleModule } from './article/article.module';
 
 @Module({
    imports: [
@@ -11,7 +13,8 @@ import { ConfigModule } from "@nestjs/config";
             ".env.local" /* Switch to .env.prod when going to production */
       }),
       UserModule,
-      DatabaseModule
+      DatabaseModule,
+      ArticleModule
    ],
    controllers: [],
    providers: []
