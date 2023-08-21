@@ -6,11 +6,10 @@ import {
    refreshPayloadSetNewStub,
    refreshPayloadStub,
    signInUserStub,
-   tokensStub,
-   userPayloadStub
+   tokensStub
 } from "./auth.stub";
 import { AuthService } from "../auth.service";
-import { RefreshPayload, UserPayload } from "src/decorators/payload.decorator";
+import { RefreshPayload } from "src/decorators/payload.decorator";
 
 jest.mock("../auth.service");
 
@@ -21,7 +20,8 @@ describe("AuthController", () => {
    const tokens = tokensStub();
    const res = {
       setCookie: jest.fn(),
-      send: jest.fn()
+      send: jest.fn(),
+      clearCookie: jest.fn()
    } as any;
 
    beforeEach(async () => {
@@ -106,28 +106,38 @@ describe("AuthController", () => {
    });
 
    describe("signout", () => {
-      let userPayload: UserPayload;
+      let rfPayload: RefreshPayload;
 
       beforeEach(async () => {
-         userPayload = userPayloadStub();
-         await controller.signout(userPayload);
+         rfPayload = refreshPayloadStub();
+         await controller.signout(rfPayload, res);
       });
 
       it("should be defined", () => {
          expect(controller.signout).toBeDefined();
       });
 
+      it("should call clearCookie method of res with correct params", () => {
+         expect(res.clearCookie).toBeCalledWith("reshare-refresh-token");
+      });
+
       it("should be called with correct params", () => {
-         expect(service.signout).toBeCalledWith(userPayload);
+         expect(service.signout).toBeCalledWith(rfPayload);
+      });
+
+      it("should call send method of res with correct params", () => {
+         expect(res.send).toBeCalledWith({
+            message: "Signed out"
+         });
       });
    });
 
    describe("refresh", () => {
-      let refreshPayload: RefreshPayload;
+      let rfPayload: RefreshPayload;
 
       beforeEach(async () => {
-         refreshPayload = refreshPayloadSetNewStub();
-         await controller.refresh(refreshPayload, res);
+         rfPayload = refreshPayloadSetNewStub();
+         await controller.refresh(rfPayload, res);
       });
 
       it("should be defined", () => {
@@ -135,7 +145,7 @@ describe("AuthController", () => {
       });
 
       it("should be called with correct params", () => {
-         expect(service.refresh).toBeCalledWith(refreshPayload, true);
+         expect(service.refresh).toBeCalledWith(rfPayload, true);
       });
 
       it("should call setCookie method of res with correct params", () => {
@@ -155,9 +165,15 @@ describe("AuthController", () => {
       });
 
       it("should return access token if refresh token is still fresh", async () => {
-         refreshPayload = refreshPayloadStub();
-         await controller.refresh(refreshPayload, res);
-         expect(service.refresh).toBeCalledWith(refreshPayload, false);
+         rfPayload = refreshPayloadStub();
+         await controller.refresh(rfPayload, res);
+         expect(service.refresh).toBeCalledWith(rfPayload, false);
+      });
+
+      it("should send back the access token if refresh token is still fresh", async () => {
+         rfPayload = refreshPayloadStub();
+         await controller.refresh(rfPayload, res);
+         expect(res.send).toBeCalledWith({ accessToken: tokens.accessToken });
       });
    });
 });

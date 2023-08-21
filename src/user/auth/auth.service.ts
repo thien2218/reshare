@@ -116,6 +116,7 @@ export class AuthService {
          await this.dbService
             .update(schema.users)
             .set({ refreshToken })
+            .where(eq(schema.users.id, sub))
             .run()
             .catch((err) => {
                if (err instanceof LibsqlError) this.handleDbError(err);

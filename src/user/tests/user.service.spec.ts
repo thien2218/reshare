@@ -5,7 +5,7 @@ import { userStub, userStubs } from "./user.stub";
 import { DatabaseModule } from "src/database/database.module";
 import { DB_CONNECTION } from "src/constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
-import { MockDbService } from "../__mocks__/database.service";
+import { MockDbConnection } from "../../database/__mocks__/database.service";
 import * as schema from "../../schemas";
 import { eq, placeholder } from "drizzle-orm";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
@@ -30,7 +30,7 @@ describe("UserService", () => {
          providers: [UserService]
       })
          .overrideProvider(DB_CONNECTION)
-         .useValue(MockDbService)
+         .useValue(MockDbConnection)
          .compile();
 
       service = module.get(UserService);
@@ -64,7 +64,7 @@ describe("UserService", () => {
       });
 
       it("should throw a 404 not found exception when no user is found", async () => {
-         MockDbService.query.users
+         MockDbConnection.query.users
             .findMany()
             .prepare()
             .all.mockImplementationOnce(() => Promise.resolve([]));
@@ -102,7 +102,7 @@ describe("UserService", () => {
       });
 
       it("should throw a 404 not found exception when no user is found", async () => {
-         MockDbService.query.users.get.mockImplementationOnce(() =>
+         MockDbConnection.query.users.get.mockImplementationOnce(() =>
             Promise.resolve(undefined)
          );
 
@@ -160,7 +160,7 @@ describe("UserService", () => {
       });
 
       it("should throw BadRequestException if user id is invalid", async () => {
-         MockDbService.get.mockImplementationOnce(() =>
+         MockDbConnection.get.mockImplementationOnce(() =>
             Promise.resolve(undefined)
          );
 
@@ -198,7 +198,7 @@ describe("UserService", () => {
       });
 
       it("should throw BadRequestException if user id is invalid", async () => {
-         MockDbService.get.mockImplementationOnce(() =>
+         MockDbConnection.get.mockImplementationOnce(() =>
             Promise.resolve(undefined)
          );
 

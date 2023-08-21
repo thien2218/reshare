@@ -1,6 +1,6 @@
-import { userStub, userStubs } from "../tests/user.stub";
+import { userStub, userStubs } from "../../user/tests/user.stub";
 
-export const MockDbService = {
+export const MockDbConnection = {
    query: {
       users: {
          findMany: jest.fn().mockReturnThis(),

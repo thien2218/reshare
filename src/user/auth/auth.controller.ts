@@ -48,26 +48,35 @@ export class AuthController {
 
    @UseGuards(RefreshGuard)
    @Post("signout")
-   async signout(@Payload() payload: RefreshPayload, @Res() res: FastifyReply) {
+   async signout(
+      @Payload() rfPayload: RefreshPayload,
+      @Res() res: FastifyReply
+   ) {
       res.clearCookie("reshare-refresh-token");
-      const message = await this.authService.signout(payload);
-      res.send(message);
+      const message = await this.authService.signout(rfPayload);
+      res.send({ message });
    }
 
    @UseGuards(RefreshGuard)
    @Post("refresh")
-   async refresh(@Payload() payload: RefreshPayload, @Res() res: FastifyReply) {
+   async refresh(
+      @Payload() rfPayload: RefreshPayload,
+      @Res() res: FastifyReply
+   ) {
       // Check if the user's refresh token expires in less than 7 days (in seconds)
       // If so, generate a new refresh token and set it to cookie
       // Otherwise, just return a new access token
       const now = (new Date().getTime() / 1000) | 0;
 
-      if (payload.exp - now < 60 * 60 * 24 * 7) {
-         const tokens = await this.authService.refresh(payload, true);
+      if (rfPayload.exp - now < 60 * 60 * 24 * 7) {
+         const tokens = await this.authService.refresh(rfPayload, true);
          this.setRefreshTokenCookie(res, tokens.refreshToken);
          res.send(tokens);
       } else {
-         const { accessToken } = await this.authService.refresh(payload, false);
+         const { accessToken } = await this.authService.refresh(
+            rfPayload,
+            false
+         );
          res.send({ accessToken });
       }
    }
