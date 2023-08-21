@@ -1,6 +1,6 @@
 import { ExecutionContext, createParamDecorator } from "@nestjs/common";
 
-export type UserPayload = {
+export type User = {
    sub: string;
    username: string;
    first_name: string;
@@ -9,12 +9,12 @@ export type UserPayload = {
    email_verified: boolean;
 };
 
-export type RefreshPayload = UserPayload & {
+export type UserRefresh = User & {
    refresh_token: string;
    exp: number;
 };
 
-export const Payload = createParamDecorator((_, ctx: ExecutionContext) => {
+export const User = createParamDecorator((_, ctx: ExecutionContext) => {
    const req = ctx.switchToHttp().getRequest();
-   return req.payload;
+   return req.user;
 });

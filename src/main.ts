@@ -16,7 +16,10 @@ async function bootstrap() {
    );
 
    app.register(fastifyCookie, {
-      secret: process.env.COOKIE_SECRET
+      secret: process.env.COOKIE_SECRET,
+      parseOptions: {
+         path: "/auth"
+      }
    });
 
    await app.listen(3333);

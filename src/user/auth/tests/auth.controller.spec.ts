@@ -9,7 +9,7 @@ import {
    tokensStub
 } from "./auth.stub";
 import { AuthService } from "../auth.service";
-import { RefreshPayload } from "src/decorators/payload.decorator";
+import { UserRefresh } from "src/decorators/user.decorator";
 
 jest.mock("../auth.service");
 
@@ -106,7 +106,7 @@ describe("AuthController", () => {
    });
 
    describe("signout", () => {
-      let rfPayload: RefreshPayload;
+      let rfPayload: UserRefresh;
 
       beforeEach(async () => {
          rfPayload = refreshPayloadStub();
@@ -133,7 +133,7 @@ describe("AuthController", () => {
    });
 
    describe("refresh", () => {
-      let rfPayload: RefreshPayload;
+      let rfPayload: UserRefresh;
 
       beforeEach(async () => {
          rfPayload = refreshPayloadSetNewStub();

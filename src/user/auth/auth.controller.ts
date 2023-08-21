@@ -13,7 +13,7 @@ import {
    SigninUserDto,
    SigninUserSchema
 } from "src/schemas/user.schema";
-import { Payload, RefreshPayload } from "src/decorators/payload.decorator";
+import { UserRefresh, User } from "src/decorators/user.decorator";
 import { FastifyReply } from "fastify";
 import { AuthService } from "./auth.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
@@ -48,35 +48,26 @@ export class AuthController {
 
    @UseGuards(RefreshGuard)
    @Post("signout")
-   async signout(
-      @Payload() rfPayload: RefreshPayload,
-      @Res() res: FastifyReply
-   ) {
+   async signout(@User() userRf: UserRefresh, @Res() res: FastifyReply) {
+      const message = await this.authService.signout(userRf);
       res.clearCookie("reshare-refresh-token");
-      const message = await this.authService.signout(rfPayload);
       res.send({ message });
    }
 
    @UseGuards(RefreshGuard)
    @Post("refresh")
-   async refresh(
-      @Payload() rfPayload: RefreshPayload,
-      @Res() res: FastifyReply
-   ) {
+   async refresh(@User() userRf: UserRefresh, @Res() res: FastifyReply) {
       // Check if the user's refresh token expires in less than 7 days (in seconds)
       // If so, generate a new refresh token and set it to cookie
       // Otherwise, just return a new access token
       const now = (new Date().getTime() / 1000) | 0;
 
-      if (rfPayload.exp - now < 60 * 60 * 24 * 7) {
-         const tokens = await this.authService.refresh(rfPayload, true);
+      if (userRf.exp - now < 60 * 60 * 24 * 7) {
+         const tokens = await this.authService.refresh(userRf, true);
          this.setRefreshTokenCookie(res, tokens.refreshToken);
          res.send(tokens);
       } else {
-         const { accessToken } = await this.authService.refresh(
-            rfPayload,
-            false
-         );
+         const { accessToken } = await this.authService.refresh(userRf, false);
          res.send({ accessToken });
       }
    }

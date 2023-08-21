@@ -9,14 +9,14 @@ import { CreateUserDto, SigninUserDto } from "src/schemas/user.schema";
 import * as schema from "../../schemas";
 import { LibsqlError } from "@libsql/client";
 import { eq, placeholder } from "drizzle-orm";
-import { RefreshPayload, UserPayload } from "src/decorators/payload.decorator";
+import { UserRefresh, User } from "src/decorators/user.decorator";
 
 export type Tokens = {
    accessToken: string;
    refreshToken: string;
 };
 
-type User = {
+type UserPayload = {
    id: string;
    email: string;
    username: string;
@@ -53,7 +53,7 @@ export class AuthService {
 
       const prepared = this.dbService
          .insert(schema.users)
-         .values(this.userInsertPlaceholder())
+         .values(this.userInsertPlaceholders())
          .prepare();
 
       await prepared.run({ ...values, refreshToken }).catch((err) => {
@@ -64,47 +64,59 @@ export class AuthService {
    }
 
    async signin({ email, password }: SigninUserDto): Promise<Tokens> {
-      const prepared = this.dbService.query.users
+      const preparedFind = this.dbService.query.users
          .findFirst({
             where: eq(schema.users.email, placeholder("email"))
          })
          .prepare();
 
-      const user = await prepared.get({ email });
+      const user = await preparedFind.get({ email });
 
       if (!user) {
          throw new BadRequestException("Incorrect email or password");
       }
 
-      const isValidPw = await bcrypt.compare(
-         password,
-         user.encryptedPassword as string
-      );
+      const isValidPw = await bcrypt
+         .compare(password, user.encryptedPassword as string)
+         .catch(() => false);
 
       if (!isValidPw) {
          throw new BadRequestException("Incorrect email or password");
       }
 
-      return this.generateTokens(user);
+      const tokens = await this.generateTokens(user);
+      const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+
+      const preparedUpdate = this.dbService
+         .update(schema.users)
+         .set({ refreshToken })
+         .where(eq(schema.users.email, placeholder("email")))
+         .prepare();
+
+      await preparedUpdate.run({ email }).catch((err) => {
+         if (err instanceof LibsqlError) this.handleDbError(err);
+      });
+
+      return tokens;
    }
 
-   async signout({ sub, refresh_token }: RefreshPayload): Promise<string> {
+   async signout({ sub, refresh_token }: UserRefresh): Promise<string> {
       await this.checkRefreshToken(sub, refresh_token);
 
-      await this.dbService
+      const prepared = this.dbService
          .update(schema.users)
          .set({ refreshToken: null })
-         .where(eq(schema.users.id, sub))
-         .run()
-         .catch((err) => {
-            if (err instanceof LibsqlError) this.handleDbError(err);
-         });
+         .where(eq(schema.users.id, placeholder("id")));
+
+      await prepared.run({ id: sub }).catch((err) => {
+         if (err instanceof LibsqlError) this.handleDbError(err);
+      });
 
       return "User successfully signed out";
    }
 
    async refresh(
-      { sub, refresh_token }: RefreshPayload,
+      { sub, refresh_token }: UserRefresh,
       tokenExpired: boolean
    ): Promise<Tokens> {
       const user = await this.checkRefreshToken(sub, refresh_token);
@@ -113,14 +125,14 @@ export class AuthService {
       if (tokenExpired) {
          const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
-         await this.dbService
+         const prepared = this.dbService
             .update(schema.users)
             .set({ refreshToken })
-            .where(eq(schema.users.id, sub))
-            .run()
-            .catch((err) => {
-               if (err instanceof LibsqlError) this.handleDbError(err);
-            });
+            .where(eq(schema.users.id, placeholder("id")));
+
+         await prepared.run({ id: sub }).catch((err) => {
+            if (err instanceof LibsqlError) this.handleDbError(err);
+         });
       }
 
       return tokens;
@@ -128,8 +140,8 @@ export class AuthService {
 
    // PRIVATE
 
-   private async generateTokens(user: User): Promise<Tokens> {
-      const payload: UserPayload = {
+   private async generateTokens(user: UserPayload): Promise<Tokens> {
+      const payload: User = {
          sub: user.id,
          email: user.email,
          username: user.username,
@@ -165,10 +177,9 @@ export class AuthService {
          throw new BadRequestException("Invalid refresh token");
       }
 
-      const isValidRefreshToken = await bcrypt.compare(
-         refreshToken,
-         user.refreshToken as string
-      );
+      const isValidRefreshToken = await bcrypt
+         .compare(refreshToken, user.refreshToken as string)
+         .catch(() => false);
 
       if (!isValidRefreshToken) {
          throw new BadRequestException("Invalid refresh token");
@@ -177,7 +188,7 @@ export class AuthService {
       return user;
    }
 
-   private userInsertPlaceholder() {
+   private userInsertPlaceholders() {
       return {
          id: placeholder("id"),
          email: placeholder("email"),
