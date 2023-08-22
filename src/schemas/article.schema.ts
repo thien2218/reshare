@@ -1,7 +1,7 @@
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import users from "./user.schema";
 import { z } from "zod";
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 // Table definition
 const articles = sqliteTable("articles", {
@@ -39,7 +39,22 @@ export const CreateArticleSchema = createInsertSchema(articles, {
    dislikesCount: z.number().int().nonnegative(),
    commentsCount: z.number().int().nonnegative(),
    averageRating: z.number().int().nonnegative()
+}).omit({
+   id: true,
+   authorId: true,
+   createdAt: true,
+   updatedAt: true,
+   likesCount: true,
+   dislikesCount: true,
+   commentsCount: true,
+   averageRating: true
 });
 
+export const UpdateArticleSchema = CreateArticleSchema.partial();
+
+export const SelectArticleSchema = createSelectSchema(articles);
+
 // Types
-export type CreateArticle = z.infer<typeof CreateArticleSchema>;
+export type CreateArticleDto = z.infer<typeof CreateArticleSchema>;
+export type UpdateArticleDto = z.infer<typeof UpdateArticleSchema>;
+export type SelectArticleDto = z.infer<typeof SelectArticleSchema>;
