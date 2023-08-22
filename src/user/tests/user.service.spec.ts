@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserService } from "../user.service";
 import { SelectUserDto, UpdateUserDto } from "src/schemas/user.schema";
-import { userStub, userStubs } from "./user.stub";
+import { selectUserStub, selectUserStubs } from "./user.stub";
 import { DatabaseModule } from "src/database/database.module";
 import { DB_CONNECTION } from "src/constants";
 import { LibSQLDatabase } from "drizzle-orm/libsql";
@@ -35,6 +35,7 @@ describe("UserService", () => {
 
       service = module.get(UserService);
       dbService = module.get(DB_CONNECTION);
+      jest.clearAllMocks();
    });
 
    it("should be defined", () => {
@@ -63,11 +64,11 @@ describe("UserService", () => {
          );
       });
 
-      it("should throw a 404 not found exception when no user is found", async () => {
+      it("should throw an exception when no user is found", async () => {
          MockDbConnection.query.users
             .findMany()
             .prepare()
-            .all.mockImplementationOnce(() => Promise.resolve([]));
+            .all.mockResolvedValueOnce([]);
 
          await expect(service.findMany(0, 20)).rejects.toThrowError(
             NotFoundException
@@ -75,7 +76,7 @@ describe("UserService", () => {
       });
 
       it("should return an array of user objects", () => {
-         expect(usersData).toEqual(userStubs());
+         expect(usersData).toEqual(selectUserStubs());
       });
    });
 
@@ -87,32 +88,32 @@ describe("UserService", () => {
       });
 
       beforeEach(async () => {
-         usersData = await service.findOneById(userStub().id);
+         usersData = await service.findOneById("1");
       });
 
       it("should make a database query to select one user with a user id", () => {
          expect(dbService.query.users.findFirst).toBeCalledWith({
-            where: eq(schema.users.id, userStub().id)
+            where: eq(schema.users.id, placeholder("id"))
          });
       });
 
       it("should call .get method of prepared statement", () => {
-         expect(dbService.query.users.findMany().prepare).toBeCalled();
-         expect(dbService.query.users.findMany().prepare().get).toBeCalled();
+         expect(dbService.query.users.findFirst().prepare).toBeCalled();
+         expect(dbService.query.users.findFirst().prepare().get).toBeCalledWith(
+            { id: "1" }
+         );
       });
 
-      it("should throw a 404 not found exception when no user is found", async () => {
-         MockDbConnection.query.users.get.mockImplementationOnce(() =>
-            Promise.resolve(undefined)
-         );
+      it("should throw an exception when no user is found", async () => {
+         MockDbConnection.query.users.get.mockResolvedValueOnce(undefined);
 
-         await expect(service.findOneById(userStub().id)).rejects.toThrowError(
+         await expect(service.findOneById("1")).rejects.toThrow(
             NotFoundException
          );
       });
 
       it("should return a user object", () => {
-         expect(usersData).toEqual(userStub());
+         expect(usersData).toEqual(selectUserStub());
       });
    });
 
@@ -156,7 +157,7 @@ describe("UserService", () => {
       });
 
       it("should return the updated user data", () => {
-         expect(selectUserDto).toEqual(userStub());
+         expect(selectUserDto).toEqual(selectUserStub());
       });
 
       it("should throw BadRequestException if user id is invalid", async () => {

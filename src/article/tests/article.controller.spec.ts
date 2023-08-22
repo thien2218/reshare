@@ -7,6 +7,7 @@ import {
    updateArticleStub
 } from "./article.stub";
 import { SelectArticleDto } from "src/schemas/article.schema";
+import { userJwtStub } from "src/user/tests/user.stub";
 
 jest.mock("../article.service");
 
@@ -57,11 +58,14 @@ describe("ArticleController", () => {
       });
 
       beforeEach(async () => {
-         article = await controller.create(createArticleStub());
+         article = await controller.create(userJwtStub(), createArticleStub());
       });
 
       it("should call service.create with correct params", () => {
-         expect(service.create).toBeCalledWith(createArticleStub());
+         expect(service.create).toBeCalledWith(
+            userJwtStub().sub,
+            createArticleStub()
+         );
       });
 
       it("should return the created article", () => {
@@ -77,11 +81,19 @@ describe("ArticleController", () => {
       });
 
       beforeEach(async () => {
-         article = await controller.update("1", updateArticleStub());
+         article = await controller.update(
+            "1",
+            userJwtStub(),
+            updateArticleStub()
+         );
       });
 
       it("should call service.update with correct params", () => {
-         expect(service.update).toBeCalledWith("1", updateArticleStub());
+         expect(service.update).toBeCalledWith(
+            "1",
+            userJwtStub().sub,
+            updateArticleStub()
+         );
       });
 
       it("should return the updated article", () => {
@@ -97,11 +109,11 @@ describe("ArticleController", () => {
       });
 
       beforeEach(async () => {
-         message = await controller.remove("1");
+         message = await controller.remove("1", userJwtStub());
       });
 
       it("should call service.remove with correct params", async () => {
-         expect(service.remove).toBeCalledWith("1");
+         expect(service.remove).toBeCalledWith("1", userJwtStub().sub);
       });
 
       it("should return the correct message", () => {

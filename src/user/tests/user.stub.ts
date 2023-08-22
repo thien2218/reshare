@@ -1,6 +1,7 @@
+import { User } from "src/decorators/user.decorator";
 import { SelectUserDto, UpdateUserDto } from "src/schemas/user.schema";
 
-export const userStub = (): SelectUserDto => {
+export const selectUserStub = (): SelectUserDto => {
    return {
       id: "01H7CDCCSA7V0KBDGTTZE5MSHG",
       firstName: "Carmen",
@@ -13,7 +14,7 @@ export const userStub = (): SelectUserDto => {
    };
 };
 
-export const userStubs = (): SelectUserDto[] => {
+export const selectUserStubs = (): SelectUserDto[] => {
    return [
       {
          id: "01H7CDCCSA7V0KBDGTTZE5MSHG",
@@ -123,5 +124,16 @@ export const userUpdateStub = (): UpdateUserDto => {
       firstName: "Lyndsie",
       email: "lchoulerton0@ucla.edu",
       username: "lchoulerton0"
+   };
+};
+
+export const userJwtStub = (): User => {
+   return {
+      sub: "01H7CDCCSA7V0KBDGTTZE5MSHG",
+      username: "ccalvie0",
+      first_name: "Carmen",
+      last_name: "Calvie",
+      email: "test@gmail.com",
+      email_verified: true
    };
 };

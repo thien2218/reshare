@@ -7,37 +7,60 @@ import {
    HttpStatus,
    Param,
    Post,
-   Put
+   Put,
+   UseGuards,
+   UsePipes
 } from "@nestjs/common";
 import { ArticleService } from "./article.service";
-import { CreateArticleDto, UpdateArticleDto } from "src/schemas/article.schema";
+import {
+   CreateArticleDto,
+   CreateArticleSchema,
+   SelectArticleDto,
+   UpdateArticleDto,
+   UpdateArticleSchema
+} from "src/schemas/article.schema";
+import { AccessGuard } from "src/guards/access.guard";
+import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
+import { User } from "src/decorators/user.decorator";
 
 @Controller("article")
 export class ArticleController {
    constructor(private readonly articleService: ArticleService) {}
 
    @Get(":id")
-   async findOneById(@Param("id") id: string) {
+   async findOneById(@Param("id") id: string): Promise<SelectArticleDto> {
       return this.articleService.findOneById(id);
    }
 
    @HttpCode(HttpStatus.CREATED)
+   @UseGuards(AccessGuard)
+   @UsePipes(new ZodValidationPipe(CreateArticleSchema))
    @Post()
-   async create(@Body() createArticleDto: CreateArticleDto) {
-      return this.articleService.create(createArticleDto);
+   async create(
+      @User() { sub }: User,
+      @Body() createArticleDto: CreateArticleDto
+   ): Promise<SelectArticleDto> {
+      return this.articleService.create(sub, createArticleDto);
    }
 
+   @UsePipes(new ZodValidationPipe(UpdateArticleSchema))
+   @UseGuards(AccessGuard)
    @Put(":id")
    async update(
       @Param("id") id: string,
+      @User() { sub }: User,
       @Body() updateArticleDto: UpdateArticleDto
-   ) {
-      return this.articleService.update(id, updateArticleDto);
+   ): Promise<SelectArticleDto> {
+      return this.articleService.update(id, sub, updateArticleDto);
    }
 
    @HttpCode(HttpStatus.NO_CONTENT)
+   @UseGuards(AccessGuard)
    @Delete(":id")
-   async remove(@Param("id") id: string) {
-      return this.articleService.remove(id);
+   async remove(
+      @Param("id") id: string,
+      @User() { sub }: User
+   ): Promise<string> {
+      return this.articleService.remove(id, sub);
    }
 }

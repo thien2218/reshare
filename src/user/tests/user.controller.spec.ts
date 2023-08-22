@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "../user.controller";
 import { UserService } from "../user.service";
-import { userStub, userStubs, userUpdateStub } from "./user.stub";
+import { selectUserStub, selectUserStubs, userUpdateStub } from "./user.stub";
 import { SelectUserDto } from "src/schemas/user.schema";
 
 jest.mock("../user.service");
@@ -47,7 +47,7 @@ describe("UserController", () => {
       });
 
       it("should return a list of user objects", () => {
-         expect(users).toEqual(userStubs());
+         expect(users).toEqual(selectUserStubs());
       });
    });
 
@@ -59,15 +59,15 @@ describe("UserController", () => {
       let user: SelectUserDto;
 
       beforeEach(async () => {
-         user = await controller.findOneById(userStub().id);
+         user = await controller.findOneById(selectUserStub().id);
       });
 
       it("should call userService.findOneById with a user id", () => {
-         expect(service.findOneById).toBeCalledWith(userStub().id);
+         expect(service.findOneById).toBeCalledWith(selectUserStub().id);
       });
 
       it("should return a user object", () => {
-         expect(user).toEqual(userStub());
+         expect(user).toEqual(selectUserStub());
       });
    });
 
@@ -79,15 +79,18 @@ describe("UserController", () => {
       let user: SelectUserDto;
 
       beforeEach(async () => {
-         user = await controller.update(userStub().id, userUpdateStub());
+         user = await controller.update(selectUserStub().id, userUpdateStub());
       });
 
       it("should call userService.update with user id", () => {
-         expect(service.update).toBeCalledWith(userStub().id, userUpdateStub());
+         expect(service.update).toBeCalledWith(
+            selectUserStub().id,
+            userUpdateStub()
+         );
       });
 
       it("should return a user object", () => {
-         expect(user).toEqual(userStub());
+         expect(user).toEqual(selectUserStub());
       });
    });
 
@@ -99,11 +102,11 @@ describe("UserController", () => {
       let message: string;
 
       beforeEach(async () => {
-         message = await controller.remove(userStub().id);
+         message = await controller.remove(selectUserStub().id);
       });
 
       it("should call userService.remove with user id", () => {
-         expect(service.remove).toBeCalledWith(userStub().id);
+         expect(service.remove).toBeCalledWith(selectUserStub().id);
       });
 
       it("should return a message after deletion", () => {
