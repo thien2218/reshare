@@ -1,15 +1,14 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { JwtService } from "@nestjs/jwt";
 import { nanoid } from "nanoid";
 import * as bcrypt from "bcrypt";
-import { DB_CONNECTION } from "src/constants";
 import { CreateUserDto, SigninUserDto } from "src/schemas/user.schema";
 import * as schema from "../../schemas";
-import { LibsqlError } from "@libsql/client";
 import { eq, placeholder } from "drizzle-orm";
 import { UserRefresh, User } from "src/decorators/user.decorator";
+import { getTimestamp } from "src/utils/getTimestamp";
+import { DatabaseService } from "src/database/database.service";
 
 export type Tokens = {
    accessToken: string;
@@ -28,22 +27,19 @@ type UserPayload = {
 @Injectable()
 export class AuthService {
    constructor(
-      @Inject(DB_CONNECTION)
-      private readonly dbService: LibSQLDatabase<typeof schema>,
+      private readonly dbService: DatabaseService,
       private readonly configService: ConfigService,
       private readonly jwtService: JwtService
    ) {}
 
    async signup({ password, ...data }: CreateUserDto): Promise<Tokens> {
       const encryptedPassword = await bcrypt.hash(password, 12);
-      const now = new Date();
-      now.setMilliseconds(0);
 
       const values = {
          id: nanoid(25),
          ...data,
-         createdAt: now.toISOString().replace(".000", ""),
-         updatedAt: now.toISOString().replace(".000", ""),
+         createdAt: getTimestamp(),
+         updatedAt: getTimestamp(),
          emailVerified: false,
          encryptedPassword
       };
@@ -51,20 +47,20 @@ export class AuthService {
       const tokens = await this.generateTokens(values);
       const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
-      const prepared = this.dbService
+      const prepared = this.dbService.db
          .insert(schema.users)
          .values(this.userInsertPlaceholders())
          .prepare();
 
-      await prepared.run({ ...values, refreshToken }).catch((err) => {
-         if (err instanceof LibsqlError) this.handleDbError(err);
-      });
+      await prepared
+         .run({ ...values, refreshToken })
+         .catch(this.dbService.handleDbError);
 
       return tokens;
    }
 
    async signin({ email, password }: SigninUserDto): Promise<Tokens> {
-      const preparedFind = this.dbService.query.users
+      const preparedFind = this.dbService.db.query.users
          .findFirst({
             where: eq(schema.users.email, placeholder("email"))
          })
@@ -87,15 +83,15 @@ export class AuthService {
       const tokens = await this.generateTokens(user);
       const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
-      const preparedUpdate = this.dbService
+      const preparedUpdate = this.dbService.db
          .update(schema.users)
          .set({ refreshToken })
-         .where(eq(schema.users.email, placeholder("email")))
+         .where(eq(schema.users.id, placeholder("id")))
          .prepare();
 
-      await preparedUpdate.run({ email }).catch((err) => {
-         if (err instanceof LibsqlError) this.handleDbError(err);
-      });
+      await preparedUpdate
+         .run({ id: user.id })
+         .catch(this.dbService.handleDbError);
 
       return tokens;
    }
@@ -103,14 +99,12 @@ export class AuthService {
    async signout({ sub, refresh_token }: UserRefresh): Promise<string> {
       await this.checkRefreshToken(sub, refresh_token);
 
-      const prepared = this.dbService
+      const prepared = this.dbService.db
          .update(schema.users)
          .set({ refreshToken: null })
          .where(eq(schema.users.id, placeholder("id")));
 
-      await prepared.run({ id: sub }).catch((err) => {
-         if (err instanceof LibsqlError) this.handleDbError(err);
-      });
+      await prepared.run({ id: sub }).catch(this.dbService.handleDbError);
 
       return "User successfully signed out";
    }
@@ -125,14 +119,12 @@ export class AuthService {
       if (tokenExpired) {
          const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
-         const prepared = this.dbService
+         const prepared = this.dbService.db
             .update(schema.users)
             .set({ refreshToken })
             .where(eq(schema.users.id, placeholder("id")));
 
-         await prepared.run({ id: sub }).catch((err) => {
-            if (err instanceof LibsqlError) this.handleDbError(err);
-         });
+         await prepared.run({ id: sub }).catch(this.dbService.handleDbError);
       }
 
       return tokens;
@@ -165,7 +157,7 @@ export class AuthService {
    }
 
    private async checkRefreshToken(sub: string, refreshToken: string) {
-      const prepared = this.dbService.query.users
+      const prepared = this.dbService.db.query.users
          .findFirst({
             where: eq(schema.users.id, placeholder("id"))
          })
@@ -201,18 +193,5 @@ export class AuthService {
          updatedAt: placeholder("updatedAt"),
          refreshToken: placeholder("refreshToken")
       };
-   }
-
-   private handleDbError(err: LibsqlError) {
-      const splitErr = err.message.split(": ");
-      const field = splitErr[splitErr.length - 1].split(".")[1];
-      const reason = splitErr[splitErr.length - 2];
-
-      const message = {
-         reason,
-         field
-      };
-
-      throw new BadRequestException([message]);
    }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { selectArticleStub } from "./tests/article.stub";
 import {
    CreateArticleDto,
@@ -6,20 +6,18 @@ import {
    SelectArticleSchema,
    UpdateArticleDto
 } from "src/schemas/article.schema";
-import { DB_CONNECTION } from "src/constants";
-import { LibSQLDatabase } from "drizzle-orm/libsql";
 import * as schema from "../schemas";
 import { eq, placeholder } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import { getTimestamp } from "src/utils/getTimestamp";
+import { DatabaseService } from "src/database/database.service";
 
 @Injectable()
 export class ArticleService {
-   constructor(
-      @Inject(DB_CONNECTION)
-      private readonly dbService: LibSQLDatabase<typeof schema>
-   ) {}
+   constructor(private readonly dbService: DatabaseService) {}
 
    async findOneById(id: string): Promise<SelectArticleDto> {
-      const prepared = this.dbService.query.articles
+      const prepared = this.dbService.db.query.articles
          .findFirst({
             where: eq(schema.articles.id, placeholder("id"))
          })
@@ -36,7 +34,25 @@ export class ArticleService {
       userId: string,
       createArticleDto: CreateArticleDto
    ): Promise<SelectArticleDto> {
-      return selectArticleStub();
+      const values = {
+         id: nanoid(25),
+         ...createArticleDto,
+         authorId: userId,
+         createdAt: getTimestamp(),
+         updatedAt: getTimestamp()
+      };
+
+      const prepared = this.dbService.db
+         .insert(schema.articles)
+         .values(this.articlePlaceholders())
+         .prepare();
+
+      const article = await prepared
+         .run(values)
+         .catch(this.dbService.handleDbError);
+
+      const result = SelectArticleSchema.parse(article);
+      return result;
    }
 
    async update(
@@ -49,5 +65,23 @@ export class ArticleService {
 
    async remove(id: string, userId: string): Promise<string> {
       return "Article successfully deleted";
+   }
+
+   // PRIVATE
+
+   private articlePlaceholders() {
+      return {
+         id: placeholder("id"),
+         authorId: placeholder("authorId"),
+         title: placeholder("title"),
+         contentMdUrl: placeholder("contentMdUrl"),
+         wordCount: placeholder("wordCount"),
+
+         scope: placeholder("scope"),
+         allowComments: placeholder("allowComments"),
+
+         createdAt: placeholder("createdAt"),
+         updatedAt: placeholder("updatedAt")
+      };
    }
 }

@@ -1,6 +1,5 @@
 import {
    BadRequestException,
-   Inject,
    Injectable,
    NotFoundException
 } from "@nestjs/common";
@@ -9,20 +8,16 @@ import {
    SelectUserSchema,
    UpdateUserDto
 } from "src/schemas/user.schema";
-import { DB_CONNECTION } from "../constants";
-import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { eq, placeholder } from "drizzle-orm";
 import * as schema from "../schemas";
+import { DatabaseService } from "src/database/database.service";
 
 @Injectable()
 export class UserService {
-   constructor(
-      @Inject(DB_CONNECTION)
-      private readonly dbService: LibSQLDatabase<typeof schema>
-   ) {}
+   constructor(private readonly dbService: DatabaseService) {}
 
    async findMany(offset: number, limit: number): Promise<SelectUserDto[]> {
-      const prepared = this.dbService.query.users
+      const prepared = this.dbService.db.query.users
          .findMany({
             limit: placeholder("limit"),
             offset: placeholder("offset")
@@ -37,7 +32,7 @@ export class UserService {
    }
 
    async findOneById(id: string): Promise<SelectUserDto> {
-      const prepared = this.dbService.query.users
+      const prepared = this.dbService.db.query.users
          .findFirst({
             where: eq(schema.users.id, placeholder("id"))
          })
@@ -54,7 +49,7 @@ export class UserService {
       id: string,
       updateUserDto: UpdateUserDto
    ): Promise<SelectUserDto> {
-      const prepared = this.dbService
+      const prepared = this.dbService.db
          .update(schema.users)
          .set(updateUserDto)
          .where(eq(schema.users.id, placeholder("id")))
@@ -72,7 +67,7 @@ export class UserService {
    }
 
    async remove(id: string): Promise<string> {
-      const user = await this.dbService
+      const user = await this.dbService.db
          .delete(schema.users)
          .where(eq(schema.users.id, placeholder("id")))
          .returning({ deletedId: schema.users.id })

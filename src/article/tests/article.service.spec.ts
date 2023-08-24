@@ -7,7 +7,7 @@ import { DB_CONNECTION } from "src/constants";
 import { MockDbConnection } from "src/database/__mocks__/database.service";
 import { SelectArticleDto } from "src/schemas/article.schema";
 import { eq, placeholder } from "drizzle-orm";
-import { selectArticleStub } from "./article.stub";
+import { createArticleStub, selectArticleStub } from "./article.stub";
 import { NotFoundException } from "@nestjs/common";
 
 describe("ArticleService", () => {
@@ -22,6 +22,10 @@ describe("ArticleService", () => {
          .overrideProvider(DB_CONNECTION)
          .useValue(MockDbConnection)
          .compile();
+
+      MockDbConnection.run.mockImplementation(() => {
+         return Promise.resolve(selectArticleStub());
+      });
 
       dbService = module.get<LibSQLDatabase<typeof schema>>(DB_CONNECTION);
       service = module.get<ArticleService>(ArticleService);
@@ -71,6 +75,39 @@ describe("ArticleService", () => {
       });
 
       it("should return the article", () => {
+         expect(article).toEqual(selectArticleStub());
+      });
+   });
+
+   describe("create", () => {
+      let article: SelectArticleDto;
+
+      it("should be defined", () => {
+         expect(service.create).toBeDefined();
+      });
+
+      beforeEach(async () => {
+         article = await service.create("1", createArticleStub());
+      });
+
+      it("should insert the article to the db", () => {
+         expect(dbService.insert).toBeCalledWith(schema.articles);
+
+         expect(dbService.insert(schema.articles).values).toBeCalled();
+
+         expect(
+            dbService.insert(schema.articles).values({} as any).prepare
+         ).toBeCalled();
+
+         expect(
+            dbService
+               .insert(schema.articles)
+               .values({} as any)
+               .prepare().run
+         ).toBeCalled();
+      });
+
+      it("should return the created article", () => {
          expect(article).toEqual(selectArticleStub());
       });
    });
