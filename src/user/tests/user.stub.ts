@@ -14,7 +14,7 @@ export const selectUserStub = (): SelectUserDto => {
    };
 };
 
-export const userUpdateStub = (): UpdateUserDto => {
+export const updateUserStub = (): UpdateUserDto => {
    return {
       firstName: "Lyndsie",
       email: "lchoulerton0@ucla.edu",

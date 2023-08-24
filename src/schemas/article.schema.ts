@@ -50,7 +50,12 @@ export const CreateArticleSchema = createInsertSchema(articles, {
    averageRating: true
 });
 
-export const UpdateArticleSchema = CreateArticleSchema.partial();
+export const UpdateArticleSchema = CreateArticleSchema.partial().refine(
+   (obj) => Object.values(obj).some((val) => val !== undefined),
+   {
+      message: "At least one property must be present"
+   }
+);
 
 export const SelectArticleSchema = createSelectSchema(articles);
 

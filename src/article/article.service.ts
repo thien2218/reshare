@@ -1,5 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { selectArticleStub } from "./tests/article.stub";
+import {
+   BadRequestException,
+   Injectable,
+   NotFoundException
+} from "@nestjs/common";
 import {
    CreateArticleDto,
    SelectArticleDto,
@@ -7,7 +10,7 @@ import {
    UpdateArticleDto
 } from "src/schemas/article.schema";
 import * as schema from "../schemas";
-import { eq, placeholder } from "drizzle-orm";
+import { and, eq, placeholder } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
 import { DatabaseService } from "src/database/database.service";
@@ -61,11 +64,26 @@ export class ArticleService {
       userId: string,
       updateArticleDto: UpdateArticleDto
    ): Promise<SelectArticleDto> {
-      return selectArticleStub();
+      const article = await this.dbService.db
+         .update(schema.articles)
+         .set(updateArticleDto)
+         .where(
+            and(
+               eq(schema.articles.id, id),
+               eq(schema.articles.authorId, userId)
+            )
+         )
+         .returning()
+         .get();
+
+      if (!article) throw new BadRequestException("Article not found");
+
+      const result = SelectArticleSchema.parse(article);
+      return result;
    }
 
-   async remove(id: string, userId: string): Promise<string> {
-      return "Article successfully deleted";
+   async remove(id: string, userId: string) {
+      return;
    }
 
    // PRIVATE

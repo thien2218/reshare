@@ -49,7 +49,7 @@ export class AuthService {
 
       const prepared = this.dbService.db
          .insert(schema.users)
-         .values(this.userInsertPlaceholders())
+         .values(this.userPlaceholders())
          .prepare();
 
       await prepared
@@ -180,7 +180,7 @@ export class AuthService {
       return user;
    }
 
-   private userInsertPlaceholders() {
+   private userPlaceholders() {
       return {
          id: placeholder("id"),
          email: placeholder("email"),
@@ -189,9 +189,14 @@ export class AuthService {
          lastName: placeholder("lastName"),
          emailVerified: placeholder("emailVerified"),
          encryptedPassword: placeholder("encryptedPassword"),
+         provider: placeholder("provider"),
+         refreshToken: placeholder("refreshToken"),
+
+         photoUrl: placeholder("photoUrl"),
+         bio: placeholder("bio"),
+
          createdAt: placeholder("createdAt"),
-         updatedAt: placeholder("updatedAt"),
-         refreshToken: placeholder("refreshToken")
+         updatedAt: placeholder("updatedAt")
       };
    }
 }

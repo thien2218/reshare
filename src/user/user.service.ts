@@ -49,34 +49,30 @@ export class UserService {
       id: string,
       updateUserDto: UpdateUserDto
    ): Promise<SelectUserDto> {
-      const prepared = this.dbService.db
+      const user = await this.dbService.db
          .update(schema.users)
          .set(updateUserDto)
-         .where(eq(schema.users.id, placeholder("id")))
+         .where(eq(schema.users.id, id))
          .returning()
-         .prepare();
-      const user = await prepared.get({ id });
-
-      const result = SelectUserSchema.safeParse(user);
-
-      if (!result.success) {
-         throw new BadRequestException("Invalid user id");
-      }
-
-      return result.data;
-   }
-
-   async remove(id: string): Promise<string> {
-      const user = await this.dbService.db
-         .delete(schema.users)
-         .where(eq(schema.users.id, placeholder("id")))
-         .returning({ deletedId: schema.users.id })
-         .get({ id });
+         .get();
 
       if (!user) {
          throw new BadRequestException("Invalid user id");
       }
 
-      return "User deleted successfully!";
+      const result = SelectUserSchema.parse(user);
+      return result;
+   }
+
+   async remove(id: string) {
+      const isDeleted = await this.dbService.db
+         .delete(schema.users)
+         .where(eq(schema.users.id, id))
+         .returning({})
+         .get();
+
+      if (!isDeleted) {
+         throw new BadRequestException("Invalid user id");
+      }
    }
 }

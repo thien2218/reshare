@@ -1,12 +1,13 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserService } from "../user.service";
-import { SelectUserDto, UpdateUserDto } from "src/schemas/user.schema";
-import { selectUserStub } from "./user.stub";
+import { SelectUserDto } from "src/schemas/user.schema";
+import { selectUserStub, updateUserStub } from "./user.stub";
 import { DatabaseModule } from "src/database/database.module";
 import * as schema from "../../schemas";
 import { eq, placeholder } from "drizzle-orm";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { DatabaseService } from "src/database/database.service";
+import { LibsqlError } from "@libsql/client";
 
 jest.mock("../../database/database.service");
 
@@ -32,6 +33,10 @@ describe("UserService", () => {
 
       service = module.get<UserService>(UserService);
       dbService = module.get<DatabaseService>(DatabaseService);
+
+      jest
+         .spyOn(dbService.db.update({} as any).set({} as any), "get")
+         .mockResolvedValue(selectUserStub() as any);
       jest.clearAllMocks();
    });
 
@@ -116,8 +121,6 @@ describe("UserService", () => {
    });
 
    describe("update", () => {
-      let id: string;
-      let updateUserDto: UpdateUserDto;
       let selectUserDto: SelectUserDto;
 
       it("should be defined", () => {
@@ -125,33 +128,25 @@ describe("UserService", () => {
       });
 
       beforeEach(async () => {
-         id = "testId";
-         updateUserDto = { firstName: "testName" };
-         selectUserDto = await service.update(id, updateUserDto);
+         selectUserDto = await service.update("id", updateUserStub());
       });
 
       it("should call dbService.db.update with correct parameters", () => {
          expect(dbService.db.update).toBeCalledWith(schema.users);
 
-         expect(dbService.db.update(schema.users).set).toBeCalledWith(
-            updateUserDto
+         expect(dbService.db.update({} as any).set).toBeCalledWith(
+            updateUserStub()
          );
 
          expect(
-            dbService.db.update(schema.users).set(updateUserDto).where
-         ).toBeCalledWith(eq(schema.users.id, placeholder("id")));
+            dbService.db.update({} as any).set({} as any).where
+         ).toBeCalledWith(eq(schema.users.id, "id"));
 
          expect(
-            dbService.db.update(schema.users).set(updateUserDto).returning
+            dbService.db.update({} as any).set({} as any).returning
          ).toBeCalled();
 
-         expect(
-            dbService.db.update(schema.users).set(updateUserDto).prepare
-         ).toBeCalled();
-
-         expect(
-            dbService.db.update(schema.users).set(updateUserDto).get
-         ).toBeCalledWith({ id });
+         expect(dbService.db.update({} as any).set({} as any).get).toBeCalled();
       });
 
       it("should return the updated user data", () => {
@@ -163,45 +158,36 @@ describe("UserService", () => {
             .spyOn(dbService.db.update({} as any).set({} as any), "get")
             .mockResolvedValueOnce(undefined as any);
 
-         await expect(
-            service.update("invalidId", updateUserDto)
-         ).rejects.toThrow(BadRequestException);
+         await expect(service.update("id", {})).rejects.toThrow(
+            BadRequestException
+         );
       });
    });
 
    describe("remove", () => {
-      let id: string;
-      let result: string;
+      it("should be defined", () => {
+         expect(service.remove).toBeDefined();
+      });
 
       beforeEach(async () => {
-         id = "testId";
-         result = await service.remove(id);
+         await service.remove("id");
       });
 
-      it("should call dbService.db.delete with correct parameters", () => {
+      it("should call dbService.db.delete with correct parameters", async () => {
          expect(dbService.db.delete).toBeCalledWith(schema.users);
-
-         expect(dbService.db.delete(schema.users).where).toBeCalledWith(
-            eq(schema.users.id, placeholder("id"))
+         expect(dbService.db.delete({} as any).where).toBeCalledWith(
+            eq(schema.users.id, "id")
          );
-
-         expect(dbService.db.delete(schema.users).returning).toBeCalledWith({
-            deletedId: schema.users.id
-         });
-
-         expect(dbService.db.delete(schema.users).get).toBeCalledWith({ id });
-      });
-
-      it("should return a success message", () => {
-         expect(result).toEqual("User deleted successfully!");
+         expect(dbService.db.delete({} as any).returning).toBeCalledWith({});
+         expect(dbService.db.delete({} as any).get).toBeCalled();
       });
 
       it("should throw BadRequestException if user id is invalid", async () => {
          jest
-            .spyOn(dbService.db.update({} as any).set({} as any), "get")
-            .mockResolvedValueOnce(undefined as any);
+            .spyOn(dbService.db.delete({} as any).returning({}), "get")
+            .mockResolvedValue(undefined);
 
-         await expect(service.remove("invalidId")).rejects.toThrow(
+         await expect(service.remove("id")).rejects.toThrow(
             BadRequestException
          );
       });

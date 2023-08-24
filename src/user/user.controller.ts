@@ -26,8 +26,8 @@ import { ParseQueryPipe } from "src/pipes/query.pipe";
 export class UserController {
    constructor(private readonly userService: UserService) {}
 
-   @Get()
    @UseInterceptors(ParseIntQueryInterceptor)
+   @Get()
    async findMany(
       @TypedQuery(new ParseQueryPipe(UserQuerySchema)) query: UserQuery
    ): Promise<SelectUserDto[]> {
@@ -39,8 +39,8 @@ export class UserController {
       return this.userService.findOneById(id);
    }
 
-   @Put(":id")
    @UsePipes(new ZodValidationPipe(UpdateUserSchema))
+   @Put(":id")
    async update(
       @Param("id") id: string,
       @Body() updateUserDto: UpdateUserDto
@@ -50,7 +50,7 @@ export class UserController {
 
    @HttpCode(HttpStatus.NO_CONTENT)
    @Delete(":id")
-   async remove(@Param("id") id: string): Promise<string> {
+   async remove(@Param("id") id: string) {
       return this.userService.remove(id);
    }
 }

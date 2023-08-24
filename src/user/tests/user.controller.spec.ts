@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "../user.controller";
 import { UserService } from "../user.service";
-import { selectUserStub, userUpdateStub } from "./user.stub";
+import { selectUserStub, updateUserStub } from "./user.stub";
 import { SelectUserDto } from "src/schemas/user.schema";
 
 jest.mock("../user.service");
@@ -79,13 +79,13 @@ describe("UserController", () => {
       let user: SelectUserDto;
 
       beforeEach(async () => {
-         user = await controller.update(selectUserStub().id, userUpdateStub());
+         user = await controller.update(selectUserStub().id, updateUserStub());
       });
 
       it("should call userService.update with user id", () => {
          expect(service.update).toBeCalledWith(
             selectUserStub().id,
-            userUpdateStub()
+            updateUserStub()
          );
       });
 
@@ -99,18 +99,9 @@ describe("UserController", () => {
          expect(controller.remove).toBeDefined();
       });
 
-      let message: string;
-
-      beforeEach(async () => {
-         message = await controller.remove(selectUserStub().id);
-      });
-
-      it("should call userService.remove with user id", () => {
+      it("should call userService.remove with user id", async () => {
+         await controller.remove(selectUserStub().id);
          expect(service.remove).toBeCalledWith(selectUserStub().id);
-      });
-
-      it("should return a message after deletion", () => {
-         expect(message).toEqual("User deleted successfully!");
       });
    });
 });

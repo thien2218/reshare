@@ -3,9 +3,13 @@ import { ArticleService } from "../article.service";
 import * as schema from "../../schemas";
 import { DatabaseModule } from "src/database/database.module";
 import { SelectArticleDto } from "src/schemas/article.schema";
-import { eq, placeholder } from "drizzle-orm";
-import { createArticleStub, selectArticleStub } from "./article.stub";
-import { NotFoundException } from "@nestjs/common";
+import { and, eq, placeholder } from "drizzle-orm";
+import {
+   createArticleStub,
+   selectArticleStub,
+   updateArticleStub
+} from "./article.stub";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { DatabaseService } from "src/database/database.service";
 
 jest.mock("../../database/database.service");
@@ -87,13 +91,10 @@ describe("ArticleService", () => {
 
       it("should insert the article to the db", () => {
          expect(dbService.db.insert).toBeCalledWith(schema.articles);
-
          expect(dbService.db.insert(schema.articles).values).toBeCalled();
-
          expect(
             dbService.db.insert(schema.articles).values({} as any).prepare
          ).toBeCalled();
-
          expect(
             dbService.db
                .insert(schema.articles)
@@ -103,6 +104,54 @@ describe("ArticleService", () => {
       });
 
       it("should return the created article", () => {
+         expect(article).toEqual(selectArticleStub());
+      });
+   });
+
+   describe("update", () => {
+      let article: SelectArticleDto;
+
+      it("should be defined", () => {
+         expect(service.update).toBeDefined();
+      });
+
+      beforeEach(async () => {
+         article = await service.update("1", "2", updateArticleStub());
+      });
+
+      it("should update the article", () => {
+         expect(dbService.db.update).toBeCalledWith(schema.articles);
+         expect(dbService.db.update({} as any).set).toBeCalled();
+
+         expect(
+            dbService.db.update({} as any).set({} as any).where
+         ).toBeCalledWith(
+            and(eq(schema.articles.id, "1"), eq(schema.articles.authorId, "2"))
+         );
+
+         expect(
+            dbService.db.update({} as any).set({} as any).returning
+         ).toBeCalled();
+
+         expect(
+            dbService.db
+               .update({} as any)
+               .set({} as any)
+               .returning().get
+         ).toBeCalled();
+      });
+
+      it("should throw an error when an article is not found", async () => {
+         jest
+            .spyOn(dbService.db.update({} as any).set({} as any), "get")
+            .mockResolvedValueOnce(undefined as any);
+
+         await expect(
+            service.update("1", "2", updateArticleStub())
+         ).rejects.toThrow(BadRequestException);
+      });
+
+      it("should return the updated article", () => {
          expect(article).toEqual(selectArticleStub());
       });
    });
