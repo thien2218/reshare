@@ -45,10 +45,11 @@ export class ArticleService {
       const prepared = this.dbService.db
          .insert(schema.articles)
          .values(this.articlePlaceholders())
+         .returning()
          .prepare();
 
       const article = await prepared
-         .run(values)
+         .get(values)
          .catch(this.dbService.handleDbError);
 
       const result = SelectArticleSchema.parse(article);

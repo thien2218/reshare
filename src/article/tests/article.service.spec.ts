@@ -1,34 +1,30 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ArticleService } from "../article.service";
-import { LibSQLDatabase } from "drizzle-orm/libsql";
 import * as schema from "../../schemas";
 import { DatabaseModule } from "src/database/database.module";
-import { DB_CONNECTION } from "src/constants";
-import { MockDbConnection } from "src/database/__mocks__/database.service";
 import { SelectArticleDto } from "src/schemas/article.schema";
 import { eq, placeholder } from "drizzle-orm";
 import { createArticleStub, selectArticleStub } from "./article.stub";
 import { NotFoundException } from "@nestjs/common";
+import { DatabaseService } from "src/database/database.service";
+
+jest.mock("../../database/database.service");
 
 describe("ArticleService", () => {
    let service: ArticleService;
-   let dbService: LibSQLDatabase<typeof schema>;
+   let dbService: DatabaseService;
 
    beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
          imports: [DatabaseModule],
          providers: [ArticleService]
-      })
-         .overrideProvider(DB_CONNECTION)
-         .useValue(MockDbConnection)
-         .compile();
+      }).compile();
 
-      MockDbConnection.run.mockImplementation(() => {
-         return Promise.resolve(selectArticleStub());
-      });
-
-      dbService = module.get<LibSQLDatabase<typeof schema>>(DB_CONNECTION);
+      dbService = module.get<DatabaseService>(DatabaseService);
       service = module.get<ArticleService>(ArticleService);
+
+      jest.spyOn(dbService.db, "get").mockResolvedValue(selectArticleStub());
+
       jest.clearAllMocks();
    });
 
@@ -48,26 +44,25 @@ describe("ArticleService", () => {
       });
 
       it("should select the article with the given id", () => {
-         expect(dbService.query.articles.findFirst).toBeCalledWith({
+         expect(dbService.db.query.articles.findFirst).toBeCalledWith({
             where: eq(schema.articles.id, placeholder("id"))
          });
       });
 
       it("should prepare the SQL statement", () => {
-         expect(dbService.query.articles.findFirst().prepare).toBeCalled();
+         expect(dbService.db.query.articles.findFirst().prepare).toBeCalled();
       });
 
       it("should get the article with prepared statement", () => {
          expect(
-            dbService.query.articles.findFirst().prepare().get
+            dbService.db.query.articles.findFirst().prepare().get
          ).toBeCalledWith({ id: "1" });
       });
 
       it("should throw an exception if the article is not found", async () => {
-         MockDbConnection.query.articles
-            .findFirst()
-            .prepare()
-            .get.mockResolvedValueOnce(undefined);
+         jest
+            .spyOn(dbService.db.query.articles.findFirst().prepare(), "get")
+            .mockResolvedValueOnce(undefined);
 
          await expect(service.findOneById("1")).rejects.toThrow(
             NotFoundException
@@ -91,19 +86,19 @@ describe("ArticleService", () => {
       });
 
       it("should insert the article to the db", () => {
-         expect(dbService.insert).toBeCalledWith(schema.articles);
+         expect(dbService.db.insert).toBeCalledWith(schema.articles);
 
-         expect(dbService.insert(schema.articles).values).toBeCalled();
+         expect(dbService.db.insert(schema.articles).values).toBeCalled();
 
          expect(
-            dbService.insert(schema.articles).values({} as any).prepare
+            dbService.db.insert(schema.articles).values({} as any).prepare
          ).toBeCalled();
 
          expect(
-            dbService
+            dbService.db
                .insert(schema.articles)
                .values({} as any)
-               .prepare().run
+               .prepare().get
          ).toBeCalled();
       });
 

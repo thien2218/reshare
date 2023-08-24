@@ -3,13 +3,15 @@ import { AuthService } from "../auth.service";
 import { DatabaseModule } from "src/database/database.module";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { DB_CONNECTION } from "src/constants";
-import { MockDbConnection } from "src/database/__mocks__/database.service";
 import { MockConfigService } from "src/database/__mocks__/config.service";
 import { MockJwtService } from "../__mocks__/jwt.service";
+import { DatabaseService } from "src/database/database.service";
+
+jest.mock("../../../database/database.service");
 
 describe("AuthService", () => {
    let service: AuthService;
+   let dbService: DatabaseService;
 
    beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
@@ -24,11 +26,11 @@ describe("AuthService", () => {
       })
          .overrideProvider(JwtModule)
          .useValue(MockJwtService)
-         .overrideProvider(DB_CONNECTION)
-         .useValue(MockDbConnection)
          .compile();
 
+      dbService = module.get<DatabaseService>(DatabaseService);
       service = module.get<AuthService>(AuthService);
+      jest.clearAllMocks();
    });
 
    it("should be defined", () => {

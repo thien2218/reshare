@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "../user.controller";
 import { UserService } from "../user.service";
-import { selectUserStub, selectUserStubs, userUpdateStub } from "./user.stub";
+import { selectUserStub, userUpdateStub } from "./user.stub";
 import { SelectUserDto } from "src/schemas/user.schema";
 
 jest.mock("../user.service");
@@ -47,7 +47,7 @@ describe("UserController", () => {
       });
 
       it("should return a list of user objects", () => {
-         expect(users).toEqual(selectUserStubs());
+         expect(users).toEqual([selectUserStub()]);
       });
    });
 

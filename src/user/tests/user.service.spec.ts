@@ -1,18 +1,18 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserService } from "../user.service";
 import { SelectUserDto, UpdateUserDto } from "src/schemas/user.schema";
-import { selectUserStub, selectUserStubs } from "./user.stub";
+import { selectUserStub } from "./user.stub";
 import { DatabaseModule } from "src/database/database.module";
-import { DB_CONNECTION } from "src/constants";
-import { LibSQLDatabase } from "drizzle-orm/libsql";
-import { MockDbConnection } from "../../database/__mocks__/database.service";
 import * as schema from "../../schemas";
 import { eq, placeholder } from "drizzle-orm";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { DatabaseService } from "src/database/database.service";
+
+jest.mock("../../database/database.service");
 
 describe("UserService", () => {
    let service: UserService;
-   let dbService: LibSQLDatabase<typeof schema>;
+   let dbService: DatabaseService;
 
    const placeholders = {
       limit: placeholder("limit"),
@@ -28,13 +28,10 @@ describe("UserService", () => {
       const module: TestingModule = await Test.createTestingModule({
          imports: [DatabaseModule],
          providers: [UserService]
-      })
-         .overrideProvider(DB_CONNECTION)
-         .useValue(MockDbConnection)
-         .compile();
+      }).compile();
 
-      service = module.get(UserService);
-      dbService = module.get(DB_CONNECTION);
+      service = module.get<UserService>(UserService);
+      dbService = module.get<DatabaseService>(DatabaseService);
       jest.clearAllMocks();
    });
 
@@ -54,21 +51,20 @@ describe("UserService", () => {
       });
 
       it("should make a database query to select many users with correct arguments", () => {
-         expect(dbService.query.users.findMany).toBeCalledWith(placeholders);
+         expect(dbService.db.query.users.findMany).toBeCalledWith(placeholders);
       });
 
       it("should call .all method of prepared statement with correct query", () => {
-         expect(dbService.query.users.findMany().prepare).toBeCalled();
-         expect(dbService.query.users.findMany().prepare().all).toBeCalledWith(
-            pagination
-         );
+         expect(dbService.db.query.users.findMany().prepare).toBeCalled();
+         expect(
+            dbService.db.query.users.findMany().prepare().all
+         ).toBeCalledWith(pagination);
       });
 
       it("should throw an exception when no user is found", async () => {
-         MockDbConnection.query.users
-            .findMany()
-            .prepare()
-            .all.mockResolvedValueOnce([]);
+         jest
+            .spyOn(dbService.db.query.users.findMany().prepare(), "all")
+            .mockResolvedValueOnce([]);
 
          await expect(service.findMany(0, 20)).rejects.toThrowError(
             NotFoundException
@@ -76,7 +72,7 @@ describe("UserService", () => {
       });
 
       it("should return an array of user objects", () => {
-         expect(usersData).toEqual(selectUserStubs());
+         expect(usersData).toEqual([selectUserStub()]);
       });
    });
 
@@ -92,20 +88,22 @@ describe("UserService", () => {
       });
 
       it("should make a database query to select one user with a user id", () => {
-         expect(dbService.query.users.findFirst).toBeCalledWith({
+         expect(dbService.db.query.users.findFirst).toBeCalledWith({
             where: eq(schema.users.id, placeholder("id"))
          });
       });
 
       it("should call .get method of prepared statement", () => {
-         expect(dbService.query.users.findFirst().prepare).toBeCalled();
-         expect(dbService.query.users.findFirst().prepare().get).toBeCalledWith(
-            { id: "1" }
-         );
+         expect(dbService.db.query.users.findFirst().prepare).toBeCalled();
+         expect(
+            dbService.db.query.users.findFirst().prepare().get
+         ).toBeCalledWith({ id: "1" });
       });
 
       it("should throw an exception when no user is found", async () => {
-         MockDbConnection.query.users.get.mockResolvedValueOnce(undefined);
+         jest
+            .spyOn(dbService.db.query.users.findFirst().prepare(), "get")
+            .mockResolvedValueOnce(undefined);
 
          await expect(service.findOneById("1")).rejects.toThrow(
             NotFoundException
@@ -132,27 +130,27 @@ describe("UserService", () => {
          selectUserDto = await service.update(id, updateUserDto);
       });
 
-      it("should call dbService.update with correct parameters", () => {
-         expect(dbService.update).toBeCalledWith(schema.users);
+      it("should call dbService.db.update with correct parameters", () => {
+         expect(dbService.db.update).toBeCalledWith(schema.users);
 
-         expect(dbService.update(schema.users).set).toBeCalledWith(
+         expect(dbService.db.update(schema.users).set).toBeCalledWith(
             updateUserDto
          );
 
          expect(
-            dbService.update(schema.users).set(updateUserDto).where
+            dbService.db.update(schema.users).set(updateUserDto).where
          ).toBeCalledWith(eq(schema.users.id, placeholder("id")));
 
          expect(
-            dbService.update(schema.users).set(updateUserDto).returning
+            dbService.db.update(schema.users).set(updateUserDto).returning
          ).toBeCalled();
 
          expect(
-            dbService.update(schema.users).set(updateUserDto).prepare
+            dbService.db.update(schema.users).set(updateUserDto).prepare
          ).toBeCalled();
 
          expect(
-            dbService.update(schema.users).set(updateUserDto).get
+            dbService.db.update(schema.users).set(updateUserDto).get
          ).toBeCalledWith({ id });
       });
 
@@ -161,9 +159,9 @@ describe("UserService", () => {
       });
 
       it("should throw BadRequestException if user id is invalid", async () => {
-         MockDbConnection.get.mockImplementationOnce(() =>
-            Promise.resolve(undefined)
-         );
+         jest
+            .spyOn(dbService.db.update({} as any).set({} as any), "get")
+            .mockResolvedValueOnce(undefined as any);
 
          await expect(
             service.update("invalidId", updateUserDto)
@@ -180,18 +178,18 @@ describe("UserService", () => {
          result = await service.remove(id);
       });
 
-      it("should call dbService.delete with correct parameters", () => {
-         expect(dbService.delete).toBeCalledWith(schema.users);
+      it("should call dbService.db.delete with correct parameters", () => {
+         expect(dbService.db.delete).toBeCalledWith(schema.users);
 
-         expect(dbService.delete(schema.users).where).toBeCalledWith(
+         expect(dbService.db.delete(schema.users).where).toBeCalledWith(
             eq(schema.users.id, placeholder("id"))
          );
 
-         expect(dbService.delete(schema.users).returning).toBeCalledWith({
+         expect(dbService.db.delete(schema.users).returning).toBeCalledWith({
             deletedId: schema.users.id
          });
 
-         expect(dbService.delete(schema.users).get).toBeCalledWith({ id });
+         expect(dbService.db.delete(schema.users).get).toBeCalledWith({ id });
       });
 
       it("should return a success message", () => {
@@ -199,9 +197,9 @@ describe("UserService", () => {
       });
 
       it("should throw BadRequestException if user id is invalid", async () => {
-         MockDbConnection.get.mockImplementationOnce(() =>
-            Promise.resolve(undefined)
-         );
+         jest
+            .spyOn(dbService.db.update({} as any).set({} as any), "get")
+            .mockResolvedValueOnce(undefined as any);
 
          await expect(service.remove("invalidId")).rejects.toThrow(
             BadRequestException
