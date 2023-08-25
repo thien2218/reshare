@@ -53,10 +53,9 @@ export class ArticleService {
          .values(this.articlePlaceholders())
          .returning()
          .prepare();
+      const article = await prepared.get(values);
 
-      const article = await prepared
-         .get(values)
-         .catch(this.dbService.handleDbError);
+      if (!article) throw new BadRequestException("Invalid user id");
 
       const result = SelectArticleSchema.parse(article);
       return result;
@@ -67,19 +66,21 @@ export class ArticleService {
       userId: string,
       updateArticleDto: UpdateArticleDto
    ): Promise<SelectArticleDto> {
-      const article = await this.dbService.db
+      const prepared = await this.dbService.db
          .update(schema.articles)
          .set(updateArticleDto)
          .where(
             and(
-               eq(schema.articles.id, id),
-               eq(schema.articles.authorId, userId)
+               eq(schema.articles.id, placeholder("id")),
+               eq(schema.articles.authorId, placeholder("userId"))
             )
          )
          .returning()
-         .get();
+         .prepare();
+      const article = await prepared.get({ id, userId });
 
-      if (!article) throw new BadRequestException("Article not found");
+      if (!article)
+         throw new BadRequestException("Invalid article id or user id");
 
       const result = SelectArticleSchema.parse(article);
       return result;

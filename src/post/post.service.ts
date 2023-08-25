@@ -13,6 +13,8 @@ import {
 } from "src/schemas/post.schema";
 import * as schema from "../schemas";
 import { selectPostStub } from "./tests/post.stub";
+import { nanoid } from "nanoid";
+import { getTimestamp } from "src/utils/getTimestamp";
 
 @Injectable()
 export class PostService {
@@ -22,7 +24,25 @@ export class PostService {
       userId: string,
       createPostDto: CreatePostDto
    ): Promise<SelectPostDto> {
-      return selectPostStub();
+      const values = {
+         id: nanoid(25),
+         authorId: userId,
+         ...createPostDto,
+         createdAt: getTimestamp(),
+         updatedAt: getTimestamp()
+      };
+
+      const prepare = this.dbService.db
+         .insert(schema.posts)
+         .values(this.postPlaceholders())
+         .returning()
+         .prepare();
+      const post = await prepare.get(values);
+
+      if (!post) throw new BadRequestException("Invalid user id");
+
+      const result = SelectPostSchema.parse(post);
+      return result;
    }
 
    async findOneById(id: string, userId: string): Promise<SelectPostDto> {
@@ -47,7 +67,23 @@ export class PostService {
       userId: string,
       updatePostDto: UpdatePostDto
    ): Promise<SelectPostDto> {
-      return selectPostStub();
+      const prepared = this.dbService.db
+         .update(schema.posts)
+         .set(updatePostDto)
+         .where(
+            and(
+               eq(schema.posts.id, placeholder("id")),
+               eq(schema.posts.authorId, placeholder("userId"))
+            )
+         )
+         .returning()
+         .prepare();
+      const post = await prepared.get({ id, userId });
+
+      if (!post) throw new BadRequestException("Invalid post id or user id");
+
+      const result = SelectPostSchema.parse(post);
+      return result;
    }
 
    async remove(id: string, userId: string) {
@@ -59,5 +95,23 @@ export class PostService {
 
       if (!isDeleted)
          throw new BadRequestException("Post not found in database");
+   }
+
+   // PRIVATE
+
+   private postPlaceholders() {
+      return {
+         id: placeholder("id"),
+         authorId: placeholder("userId"),
+         content: placeholder("content"),
+         imgAttachments: placeholder("imgAttachments"),
+         urlAttachments: placeholder("urlAttachments"),
+
+         scope: placeholder("scope"),
+         allowComments: placeholder("allowComments"),
+
+         createdAt: placeholder("createdAt"),
+         updatedAt: placeholder("updatedAt")
+      };
    }
 }
