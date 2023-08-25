@@ -28,7 +28,6 @@ describe("ArticleService", () => {
       service = module.get<ArticleService>(ArticleService);
 
       jest.spyOn(dbService.db, "get").mockResolvedValue(selectArticleStub());
-
       jest.clearAllMocks();
    });
 
@@ -44,12 +43,15 @@ describe("ArticleService", () => {
       });
 
       beforeEach(async () => {
-         article = await service.findOneById("1");
+         article = await service.findOneById("1", "2");
       });
 
       it("should select the article with the given id", () => {
          expect(dbService.db.query.articles.findFirst).toBeCalledWith({
-            where: eq(schema.articles.id, placeholder("id"))
+            where: and(
+               eq(schema.articles.id, placeholder("id")),
+               eq(schema.articles.authorId, placeholder("userId"))
+            )
          });
       });
 
@@ -60,7 +62,7 @@ describe("ArticleService", () => {
       it("should get the article with prepared statement", () => {
          expect(
             dbService.db.query.articles.findFirst().prepare().get
-         ).toBeCalledWith({ id: "1" });
+         ).toBeCalledWith({ id: "1", userId: "2" });
       });
 
       it("should throw an exception if the article is not found", async () => {
@@ -68,7 +70,7 @@ describe("ArticleService", () => {
             .spyOn(dbService.db.query.articles.findFirst().prepare(), "get")
             .mockResolvedValueOnce(undefined);
 
-         await expect(service.findOneById("1")).rejects.toThrow(
+         await expect(service.findOneById("1", "2")).rejects.toThrow(
             NotFoundException
          );
       });

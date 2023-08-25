@@ -1,5 +1,6 @@
 import { selectArticleStub } from "src/article/tests/article.stub";
 import { selectUserStub } from "../../user/tests/user.stub";
+import { selectPostStub } from "src/post/tests/post.stub";
 
 const mockQueries = {
    findMany: jest.fn().mockReturnThis(),
@@ -19,6 +20,11 @@ export const DatabaseService = jest.fn().mockReturnValue({
             ...mockQueries,
             get: jest.fn().mockResolvedValue(selectArticleStub()),
             all: jest.fn().mockResolvedValue([selectArticleStub()])
+         },
+         posts: {
+            ...mockQueries,
+            get: jest.fn().mockResolvedValue(selectPostStub()),
+            all: jest.fn().mockResolvedValue([selectPostStub()])
          }
       },
       insert: jest.fn().mockReturnThis(),
