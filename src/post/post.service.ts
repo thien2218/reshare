@@ -12,7 +12,6 @@ import {
    UpdatePostDto
 } from "src/schemas/post.schema";
 import * as schema from "../schemas";
-import { selectPostStub } from "./tests/post.stub";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
 
@@ -45,17 +44,14 @@ export class PostService {
       return result;
    }
 
-   async findOneById(id: string, userId: string): Promise<SelectPostDto> {
+   async findOneById(id: string): Promise<SelectPostDto> {
       const prepare = this.dbService.db.query.posts
          .findFirst({
-            where: and(
-               eq(schema.posts.id, placeholder("id")),
-               eq(schema.posts.authorId, placeholder("userId"))
-            )
+            where: and(eq(schema.posts.id, placeholder("id")))
          })
          .prepare();
-      const post = await prepare.get({ id, userId });
 
+      const post = await prepare.get({ id });
       if (!post) throw new NotFoundException();
 
       const result = SelectPostSchema.parse(post);
@@ -102,7 +98,7 @@ export class PostService {
    private postPlaceholders() {
       return {
          id: placeholder("id"),
-         authorId: placeholder("userId"),
+         authorId: placeholder("authorId"),
          content: placeholder("content"),
          imgAttachments: placeholder("imgAttachments"),
          urlAttachments: placeholder("urlAttachments"),

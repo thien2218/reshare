@@ -1,362 +1,345 @@
 {
-  "version": "5",
-  "dialect": "sqlite",
-  "id": "14b6fd5b-49dc-44f1-8295-38d90df6121c",
-  "prevId": "3c0c0837-4bbf-4278-b0c0-b9f4f03cdc25",
-  "tables": {
-    "articles": {
-      "name": "articles",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "author_id": {
-          "name": "author_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "content_md_url": {
-          "name": "content_md_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "word_count": {
-          "name": "word_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "scope": {
-          "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'public'"
-        },
-        "allow_comments": {
-          "name": "allow_comments",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
-        },
-        "likes_count": {
-          "name": "likes_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "dislikes_count": {
-          "name": "dislikes_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "comments_count": {
-          "name": "comments_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "average_rating": {
-          "name": "average_rating",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
+   "version": "5",
+   "dialect": "sqlite",
+   "id": "14b6fd5b-49dc-44f1-8295-38d90df6121c",
+   "prevId": "3c0c0837-4bbf-4278-b0c0-b9f4f03cdc25",
+   "tables": {
+      "articles": {
+         "name": "articles",
+         "columns": {
+            "id": {
+               "name": "id",
+               "type": "text",
+               "primaryKey": true,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "author_id": {
+               "name": "author_id",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "title": {
+               "name": "title",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "content_md_url": {
+               "name": "content_md_url",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "word_count": {
+               "name": "word_count",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "scope": {
+               "name": "scope",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "allow_comments": {
+               "name": "allow_comments",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "likes_count": {
+               "name": "likes_count",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false,
+               "default": 0
+            },
+            "dislikes_count": {
+               "name": "dislikes_count",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false,
+               "default": 0
+            },
+            "comments_count": {
+               "name": "comments_count",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false,
+               "default": 0
+            },
+            "average_rating": {
+               "name": "average_rating",
+               "type": "real",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false,
+               "default": 0
+            },
+            "created_at": {
+               "name": "created_at",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "updated_at": {
+               "name": "updated_at",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            }
+         },
+         "indexes": {},
+         "foreignKeys": {
+            "articles_author_id_users_id_fk": {
+               "name": "articles_author_id_users_id_fk",
+               "tableFrom": "articles",
+               "tableTo": "users",
+               "columnsFrom": ["author_id"],
+               "columnsTo": ["id"],
+               "onDelete": "no action",
+               "onUpdate": "no action"
+            }
+         },
+         "compositePrimaryKeys": {},
+         "uniqueConstraints": {}
       },
-      "indexes": {},
-      "foreignKeys": {
-        "articles_author_id_users_id_fk": {
-          "name": "articles_author_id_users_id_fk",
-          "tableFrom": "articles",
-          "tableTo": "users",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
+      "posts": {
+         "name": "posts",
+         "columns": {
+            "id": {
+               "name": "id",
+               "type": "text",
+               "primaryKey": true,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "author_id": {
+               "name": "author_id",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "content": {
+               "name": "content",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "img_attachments": {
+               "name": "img_attachments",
+               "type": "blob",
+               "primaryKey": false,
+               "notNull": false,
+               "autoincrement": false
+            },
+            "url_attachments": {
+               "name": "url_attachments",
+               "type": "blob",
+               "primaryKey": false,
+               "notNull": false,
+               "autoincrement": false
+            },
+            "scope": {
+               "name": "scope",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "allow_comments": {
+               "name": "allow_comments",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "likes_count": {
+               "name": "likes_count",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false,
+               "default": 0
+            },
+            "dislikes_count": {
+               "name": "dislikes_count",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false,
+               "default": 0
+            },
+            "comments_count": {
+               "name": "comments_count",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false,
+               "default": 0
+            },
+            "created_at": {
+               "name": "created_at",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "updated_at": {
+               "name": "updated_at",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            }
+         },
+         "indexes": {},
+         "foreignKeys": {
+            "posts_author_id_users_id_fk": {
+               "name": "posts_author_id_users_id_fk",
+               "tableFrom": "posts",
+               "tableTo": "users",
+               "columnsFrom": ["author_id"],
+               "columnsTo": ["id"],
+               "onDelete": "no action",
+               "onUpdate": "no action"
+            }
+         },
+         "compositePrimaryKeys": {},
+         "uniqueConstraints": {}
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "posts": {
-      "name": "posts",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "author_id": {
-          "name": "author_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "img_attachments": {
-          "name": "img_attachments",
-          "type": "blob",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "url_attachments": {
-          "name": "url_attachments",
-          "type": "blob",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "scope": {
-          "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'public'"
-        },
-        "allow_comments": {
-          "name": "allow_comments",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
-        },
-        "likes_count": {
-          "name": "likes_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "dislikes_count": {
-          "name": "dislikes_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "comments_count": {
-          "name": "comments_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "posts_author_id_users_id_fk": {
-          "name": "posts_author_id_users_id_fk",
-          "tableFrom": "posts",
-          "tableTo": "users",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "users": {
-      "name": "users",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "username": {
-          "name": "username",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "first_name": {
-          "name": "first_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "last_name": {
-          "name": "last_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'email'"
-        },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "encrypted_password": {
-          "name": "encrypted_password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "photo_url": {
-          "name": "photo_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "users_username_unique": {
-          "name": "users_username_unique",
-          "columns": [
-            "username"
-          ],
-          "isUnique": true
-        },
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    }
-  },
-  "enums": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  }
+      "users": {
+         "name": "users",
+         "columns": {
+            "id": {
+               "name": "id",
+               "type": "text",
+               "primaryKey": true,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "username": {
+               "name": "username",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "email": {
+               "name": "email",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "first_name": {
+               "name": "first_name",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "last_name": {
+               "name": "last_name",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "email_verified": {
+               "name": "email_verified",
+               "type": "integer",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "provider": {
+               "name": "provider",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "refresh_token": {
+               "name": "refresh_token",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": false,
+               "autoincrement": false
+            },
+            "encrypted_password": {
+               "name": "encrypted_password",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": false,
+               "autoincrement": false
+            },
+            "photo_url": {
+               "name": "photo_url",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": false,
+               "autoincrement": false
+            },
+            "bio": {
+               "name": "bio",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": false,
+               "autoincrement": false
+            },
+            "created_at": {
+               "name": "created_at",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            },
+            "updated_at": {
+               "name": "updated_at",
+               "type": "text",
+               "primaryKey": false,
+               "notNull": true,
+               "autoincrement": false
+            }
+         },
+         "indexes": {
+            "users_username_unique": {
+               "name": "users_username_unique",
+               "columns": ["username"],
+               "isUnique": true
+            },
+            "users_email_unique": {
+               "name": "users_email_unique",
+               "columns": ["email"],
+               "isUnique": true
+            }
+         },
+         "foreignKeys": {},
+         "compositePrimaryKeys": {},
+         "uniqueConstraints": {}
+      }
+   },
+   "enums": {},
+   "_meta": {
+      "schemas": {},
+      "tables": {},
+      "columns": {}
+   }
 }

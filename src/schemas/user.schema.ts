@@ -10,7 +10,7 @@ const users = sqliteTable("users", {
    firstName: text("first_name").notNull(),
    lastName: text("last_name").notNull(),
    emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
-   provider: text("provider").notNull().default("email"),
+   provider: text("provider").notNull(),
    refreshToken: text("refresh_token"),
    encryptedPassword: text("encrypted_password"),
 
@@ -30,8 +30,7 @@ export const CreateUserSchema = createInsertSchema(users, {
    lastName: z.string().nonempty().max(30),
    email: z.string().nonempty().email(),
    photoUrl: z.string().url(),
-   bio: z.string().max(500),
-   provider: z.enum(["email", "google"])
+   bio: z.string().max(500)
 })
    .omit({
       id: true,

@@ -13,10 +13,8 @@ const articles = sqliteTable("articles", {
    contentMdUrl: text("content_md_url").notNull(),
    wordCount: integer("word_count").notNull(),
 
-   scope: text("scope").notNull().default("public"),
-   allowComments: integer("allow_comments", { mode: "boolean" })
-      .notNull()
-      .default(true),
+   scope: text("scope").notNull(),
+   allowComments: integer("allow_comments", { mode: "boolean" }).notNull(),
 
    likesCount: integer("likes_count").notNull().default(0),
    dislikesCount: integer("dislikes_count").notNull().default(0),

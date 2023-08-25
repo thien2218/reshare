@@ -13,10 +13,8 @@ const posts = sqliteTable("posts", {
    imgAttachments: blob("img_attachments", { mode: "json" }).$type<string[]>(),
    urlAttachments: blob("url_attachments", { mode: "json" }).$type<string[]>(),
 
-   scope: text("scope").notNull().default("public"),
-   allowComments: integer("allow_comments", { mode: "boolean" })
-      .notNull()
-      .default(true),
+   scope: text("scope").notNull(),
+   allowComments: integer("allow_comments", { mode: "boolean" }).notNull(),
 
    likesCount: integer("likes_count").notNull().default(0),
    dislikesCount: integer("dislikes_count").notNull().default(0),

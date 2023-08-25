@@ -30,26 +30,6 @@ describe("ArticleController", () => {
       expect(controller).toBeDefined();
    });
 
-   describe("findOneById", () => {
-      let article: SelectArticleDto;
-
-      it("should be defined", () => {
-         expect(controller.findOneById).toBeDefined();
-      });
-
-      beforeEach(async () => {
-         article = await controller.findOneById("1");
-      });
-
-      it("should call service.findOneById with correct params", () => {
-         expect(service.findOneById).toBeCalledWith("1");
-      });
-
-      it("should return correct article with the provided id", () => {
-         expect(article).toEqual(selectArticleStub());
-      });
-   });
-
    describe("create", () => {
       let article: SelectArticleDto;
 
@@ -73,6 +53,26 @@ describe("ArticleController", () => {
       });
    });
 
+   describe("findOneById", () => {
+      let article: SelectArticleDto;
+
+      it("should be defined", () => {
+         expect(controller.findOneById).toBeDefined();
+      });
+
+      beforeEach(async () => {
+         article = await controller.findOneById("id");
+      });
+
+      it("should call service.findOneById with correct params", () => {
+         expect(service.findOneById).toBeCalledWith("id");
+      });
+
+      it("should return correct article with the provided id", () => {
+         expect(article).toEqual(selectArticleStub());
+      });
+   });
+
    describe("update", () => {
       let article: SelectArticleDto;
 
@@ -82,7 +82,7 @@ describe("ArticleController", () => {
 
       beforeEach(async () => {
          article = await controller.update(
-            "1",
+            "id",
             userJwtStub(),
             updateArticleStub()
          );
@@ -90,7 +90,7 @@ describe("ArticleController", () => {
 
       it("should call service.update with correct params", () => {
          expect(service.update).toBeCalledWith(
-            "1",
+            "id",
             userJwtStub().sub,
             updateArticleStub()
          );
@@ -102,22 +102,16 @@ describe("ArticleController", () => {
    });
 
    describe("remove", () => {
-      let message: string;
-
       it("should be defined", () => {
          expect(controller.remove).toBeDefined();
       });
 
       beforeEach(async () => {
-         message = await controller.remove("1", userJwtStub());
+         await controller.remove("id", userJwtStub());
       });
 
       it("should call service.remove with correct params", async () => {
-         expect(service.remove).toBeCalledWith("1", userJwtStub().sub);
-      });
-
-      it("should return the correct message", () => {
-         expect(message).toEqual("Article successfully deleted");
+         expect(service.remove).toBeCalledWith("id", userJwtStub().sub);
       });
    });
 });

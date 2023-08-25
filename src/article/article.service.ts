@@ -19,17 +19,14 @@ import { DatabaseService } from "src/database/database.service";
 export class ArticleService {
    constructor(private readonly dbService: DatabaseService) {}
 
-   async findOneById(id: string, userId: string): Promise<SelectArticleDto> {
+   async findOneById(id: string): Promise<SelectArticleDto> {
       const prepared = this.dbService.db.query.articles
          .findFirst({
-            where: and(
-               eq(schema.articles.id, placeholder("id")),
-               eq(schema.articles.authorId, placeholder("userId"))
-            )
+            where: and(eq(schema.articles.id, placeholder("id")))
          })
          .prepare();
 
-      const article = await prepared.get({ id, userId });
+      const article = await prepared.get({ id });
       if (!article) throw new NotFoundException("Article not found");
 
       const result = SelectArticleSchema.parse(article);
@@ -57,7 +54,7 @@ export class ArticleService {
 
       if (!article) throw new BadRequestException("Invalid user id");
 
-      const result = SelectArticleSchema.parse(article);
+      const result = SelectArticleSchema.parse(values);
       return result;
    }
 

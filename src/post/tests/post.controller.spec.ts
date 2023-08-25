@@ -60,14 +60,11 @@ describe("PostController", () => {
       });
 
       beforeEach(async () => {
-         selectPostDto = await controller.findOneById("id", userJwtStub());
+         selectPostDto = await controller.findOneById("id");
       });
 
       it("should call service.findOneById with correct params", () => {
-         expect(service.findOneById).toHaveBeenCalledWith(
-            "id",
-            userJwtStub().sub
-         );
+         expect(service.findOneById).toHaveBeenCalledWith("id");
       });
 
       it("should return the post", () => {

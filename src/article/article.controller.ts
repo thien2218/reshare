@@ -27,14 +27,6 @@ import { User } from "src/decorators/user.decorator";
 export class ArticleController {
    constructor(private readonly articleService: ArticleService) {}
 
-   @Get(":id")
-   async findOneById(
-      @Param("id") id: string,
-      @User() { sub }: User
-   ): Promise<SelectArticleDto> {
-      return this.articleService.findOneById(id, sub);
-   }
-
    @HttpCode(HttpStatus.CREATED)
    @UseGuards(AccessGuard)
    @UsePipes(new ZodValidationPipe(CreateArticleSchema))
@@ -46,8 +38,13 @@ export class ArticleController {
       return this.articleService.create(sub, createArticleDto);
    }
 
-   @UsePipes(new ZodValidationPipe(UpdateArticleSchema))
+   @Get(":id")
+   async findOneById(@Param("id") id: string): Promise<SelectArticleDto> {
+      return this.articleService.findOneById(id);
+   }
+
    @UseGuards(AccessGuard)
+   @UsePipes(new ZodValidationPipe(UpdateArticleSchema))
    @Put(":id")
    async update(
       @Param("id") id: string,

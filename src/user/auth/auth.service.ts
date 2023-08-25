@@ -40,6 +40,7 @@ export class AuthService {
          ...data,
          createdAt: getTimestamp(),
          updatedAt: getTimestamp(),
+         provider: "email",
          emailVerified: false,
          encryptedPassword
       };

@@ -95,9 +95,8 @@
                "name": "provider",
                "type": "text",
                "primaryKey": false,
-               "notNull": false,
-               "autoincrement": false,
-               "default": "'email'"
+               "notNull": true,
+               "autoincrement": false
             }
          },
          "indexes": {
