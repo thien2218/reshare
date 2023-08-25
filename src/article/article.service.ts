@@ -19,14 +19,17 @@ import { DatabaseService } from "src/database/database.service";
 export class ArticleService {
    constructor(private readonly dbService: DatabaseService) {}
 
-   async findOneById(id: string): Promise<SelectArticleDto> {
+   async findOneById(id: string, userId: string): Promise<SelectArticleDto> {
       const prepared = this.dbService.db.query.articles
          .findFirst({
-            where: eq(schema.articles.id, placeholder("id"))
+            where: and(
+               eq(schema.articles.id, placeholder("id")),
+               eq(schema.articles.authorId, placeholder("userId"))
+            )
          })
          .prepare();
 
-      const article = await prepared.get({ id });
+      const article = await prepared.get({ id, userId });
       if (!article) throw new NotFoundException("Article not found");
 
       const result = SelectArticleSchema.parse(article);
@@ -83,7 +86,18 @@ export class ArticleService {
    }
 
    async remove(id: string, userId: string) {
-      return;
+      const isDeleted = await this.dbService.db
+         .delete(schema.articles)
+         .where(
+            and(
+               eq(schema.articles.id, id),
+               eq(schema.articles.authorId, userId)
+            )
+         )
+         .returning({})
+         .get();
+
+      if (!isDeleted) throw new BadRequestException("Article not found");
    }
 
    // PRIVATE

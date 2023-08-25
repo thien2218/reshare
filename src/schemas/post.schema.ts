@@ -1,6 +1,6 @@
 import { blob, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import users from "./user.schema";
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Table definition
@@ -33,11 +33,25 @@ export const CreatePostSchema = createInsertSchema(posts, {
    content: z.string().nonempty().max(4000),
    imgAttachments: z.array(z.string().url()),
    urlAttachments: z.array(z.string().url()),
-   scope: z.enum(["public", "followers", "private"]),
-   likesCount: z.number().int().nonnegative(),
-   dislikesCount: z.number().int().nonnegative(),
-   commentsCount: z.number().int().nonnegative()
+   scope: z.enum(["public", "followers", "private"])
+}).omit({
+   id: true,
+   authorId: true,
+   createdAt: true,
+   updatedAt: true,
+   likesCount: true,
+   dislikesCount: true,
+   commentsCount: true
 });
 
+export const UpdatePostSchema = CreatePostSchema.partial().refine(
+   (obj) => Object.values(obj).some((val) => val !== undefined),
+   { message: "At least one field must be provided" }
+);
+
+export const SelectPostSchema = createSelectSchema(posts);
+
 // Types
-export type CreatePost = z.infer<typeof CreatePostSchema>;
+export type CreatePostDto = z.infer<typeof CreatePostSchema>;
+export type UpdatePostDto = z.infer<typeof UpdatePostSchema>;
+export type SelectPostDto = z.infer<typeof SelectPostSchema>;

@@ -28,8 +28,11 @@ export class ArticleController {
    constructor(private readonly articleService: ArticleService) {}
 
    @Get(":id")
-   async findOneById(@Param("id") id: string): Promise<SelectArticleDto> {
-      return this.articleService.findOneById(id);
+   async findOneById(
+      @Param("id") id: string,
+      @User() { sub }: User
+   ): Promise<SelectArticleDto> {
+      return this.articleService.findOneById(id, sub);
    }
 
    @HttpCode(HttpStatus.CREATED)
@@ -57,10 +60,7 @@ export class ArticleController {
    @HttpCode(HttpStatus.NO_CONTENT)
    @UseGuards(AccessGuard)
    @Delete(":id")
-   async remove(
-      @Param("id") id: string,
-      @User() { sub }: User
-   ): Promise<string> {
+   async remove(@Param("id") id: string, @User() { sub }: User) {
       return this.articleService.remove(id, sub);
    }
 }

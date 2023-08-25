@@ -4,5 +4,5 @@ export const UserService = jest.fn().mockReturnValue({
    findMany: jest.fn().mockResolvedValue([selectUserStub()]),
    findOneById: jest.fn().mockResolvedValue(selectUserStub()),
    update: jest.fn().mockResolvedValue(selectUserStub()),
-   remove: jest.fn().mockResolvedValue("User deleted successfully!")
+   remove: jest.fn()
 });

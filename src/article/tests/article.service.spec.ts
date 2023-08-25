@@ -155,4 +155,33 @@ describe("ArticleService", () => {
          expect(article).toEqual(selectArticleStub());
       });
    });
+
+   describe("remove", () => {
+      it("should be defined", () => {
+         expect(service.remove).toBeDefined();
+      });
+
+      beforeEach(async () => {
+         await service.remove("1", "2");
+      });
+
+      it("should remove the article", async () => {
+         expect(dbService.db.delete).toBeCalledWith(schema.articles);
+         expect(dbService.db.delete({} as any).where).toBeCalledWith(
+            and(eq(schema.articles.id, "1"), eq(schema.articles.authorId, "2"))
+         );
+         expect(dbService.db.delete({} as any).returning).toBeCalledWith({});
+         expect(dbService.db.delete({} as any).returning().get).toBeCalled();
+      });
+
+      it("should throw an error when an article is not found", async () => {
+         jest
+            .spyOn(dbService.db.delete({} as any).returning(), "get")
+            .mockResolvedValueOnce(undefined);
+
+         await expect(service.remove("1", "2")).rejects.toThrow(
+            BadRequestException
+         );
+      });
+   });
 });
