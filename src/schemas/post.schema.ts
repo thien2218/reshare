@@ -1,6 +1,6 @@
 import { blob, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import users from "./user.schema";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Table definition
@@ -27,19 +27,12 @@ const posts = sqliteTable("posts", {
 export default posts;
 
 // Validation schemas
-export const CreatePostSchema = createInsertSchema(posts, {
+export const CreatePostSchema = z.object({
    content: z.string().nonempty().max(4000),
-   imgAttachments: z.array(z.string().url()),
-   urlAttachments: z.array(z.string().url()),
-   scope: z.enum(["public", "followers", "private"])
-}).omit({
-   id: true,
-   authorId: true,
-   createdAt: true,
-   updatedAt: true,
-   likesCount: true,
-   dislikesCount: true,
-   commentsCount: true
+   imgAttachments: z.array(z.string().url()).nullable().default(null),
+   urlAttachments: z.array(z.string().url()).nullable().default(null),
+   scope: z.enum(["public", "followers", "private"]),
+   allowComments: z.boolean()
 });
 
 export const UpdatePostSchema = CreatePostSchema.partial().refine(

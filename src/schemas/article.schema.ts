@@ -1,7 +1,7 @@
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import users from "./user.schema";
 import { z } from "zod";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 
 // Table definition
 const articles = sqliteTable("articles", {
@@ -9,7 +9,7 @@ const articles = sqliteTable("articles", {
    authorId: text("author_id")
       .references(() => users.id)
       .notNull(),
-   title: text("title").notNull(),
+   title: text("title").unique().notNull(),
    contentMdUrl: text("content_md_url").notNull(),
    wordCount: integer("word_count").notNull(),
 
@@ -28,24 +28,12 @@ const articles = sqliteTable("articles", {
 export default articles;
 
 // Validation schemas
-export const CreateArticleSchema = createInsertSchema(articles, {
-   scope: z.enum(["public", "followers", "private"]),
+export const CreateArticleSchema = z.object({
    title: z.string().nonempty().max(100),
    contentMdUrl: z.string().url(),
-   wordCount: z.number().int().nonnegative().min(1000),
-   likesCount: z.number().int().nonnegative(),
-   dislikesCount: z.number().int().nonnegative(),
-   commentsCount: z.number().int().nonnegative(),
-   averageRating: z.number().int().nonnegative()
-}).omit({
-   id: true,
-   authorId: true,
-   createdAt: true,
-   updatedAt: true,
-   likesCount: true,
-   dislikesCount: true,
-   commentsCount: true,
-   averageRating: true
+   wordCount: z.number().int().positive().min(1000),
+   scope: z.enum(["public", "followers", "private"]),
+   allowComments: z.boolean()
 });
 
 export const UpdateArticleSchema = CreateArticleSchema.partial().refine(

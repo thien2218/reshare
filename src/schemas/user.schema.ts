@@ -1,5 +1,5 @@
 import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Table definition
@@ -24,24 +24,14 @@ const users = sqliteTable("users", {
 export default users;
 
 // Validation schemas
-export const CreateUserSchema = createInsertSchema(users, {
-   username: z.string().nonempty().max(50),
-   firstName: z.string().nonempty().max(30),
-   lastName: z.string().nonempty().max(30),
-   email: z.string().nonempty().email(),
-   photoUrl: z.string().url(),
-   bio: z.string().max(500)
-})
-   .omit({
-      id: true,
-      encryptedPassword: true,
-      createdAt: true,
-      updatedAt: true,
-      refreshToken: true,
-      provider: true,
-      emailVerified: true
-   })
-   .extend({
+export const CreateUserSchema = z
+   .object({
+      username: z.string().min(3).max(24),
+      email: z.string().email(),
+      firstName: z.string().nonempty().max(30),
+      lastName: z.string().nonempty().max(30),
+      photoUrl: z.string().url().nullable().default(null),
+      bio: z.string().max(500).nullable().default(null),
       password: z.string().min(6).max(24),
       confirmPw: z.string().min(6).max(24)
    })

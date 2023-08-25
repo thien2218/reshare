@@ -15,6 +15,13 @@
       "when": 1692632440006,
       "tag": "0001_groovy_chronomancer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1692973120897,
+      "tag": "0002_red_triton",
+      "breakpoints": true
     }
   ]
 }
