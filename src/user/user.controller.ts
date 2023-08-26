@@ -6,7 +6,6 @@ import {
    Param,
    Delete,
    UsePipes,
-   UseInterceptors,
    HttpCode,
    HttpStatus
 } from "@nestjs/common";
@@ -17,22 +16,10 @@ import {
 } from "src/schemas/user.schema";
 import { UserService } from "./user.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
-import { ParseIntQueryInterceptor } from "src/interceptors/query.interceptor";
-import { TypedQuery } from "src/decorators/typed-query.decorator";
-import { UserQuery, UserQuerySchema } from "src/schemas/query.schema";
-import { ParseQueryPipe } from "src/pipes/query.pipe";
 
 @Controller("user")
 export class UserController {
    constructor(private readonly userService: UserService) {}
-
-   @UseInterceptors(ParseIntQueryInterceptor)
-   @Get()
-   async findMany(
-      @TypedQuery(new ParseQueryPipe(UserQuerySchema)) query: UserQuery
-   ): Promise<SelectUserDto[]> {
-      return this.userService.findMany(query.offset, query.limit);
-   }
 
    @Get(":id")
    async findOneById(@Param("id") id: string): Promise<SelectUserDto> {

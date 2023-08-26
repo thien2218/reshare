@@ -16,21 +16,6 @@ import { DatabaseService } from "src/database/database.service";
 export class UserService {
    constructor(private readonly dbService: DatabaseService) {}
 
-   async findMany(offset: number, limit: number): Promise<SelectUserDto[]> {
-      const prepared = this.dbService.db.query.users
-         .findMany({
-            limit: placeholder("limit"),
-            offset: placeholder("offset")
-         })
-         .prepare();
-
-      const users = await prepared.all({ limit, offset });
-      if (!users.length) throw new NotFoundException();
-
-      const result = users.map((user) => SelectUserSchema.parse(user));
-      return result;
-   }
-
    async findOneById(id: string): Promise<SelectUserDto> {
       const prepared = this.dbService.db.query.users
          .findFirst({

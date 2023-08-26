@@ -18,7 +18,7 @@ import {
    SelectArticleDto,
    UpdateArticleDto,
    UpdateArticleSchema
-} from "src/schemas/article.schema";
+} from "src/schemas/tables/article";
 import { AccessGuard } from "src/guards/access.guard";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 import { User } from "src/decorators/user.decorator";

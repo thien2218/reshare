@@ -2,7 +2,7 @@ import {
    CreateArticleDto,
    SelectArticleDto,
    UpdateArticleDto
-} from "src/schemas/article.schema";
+} from "src/schemas/tables/article";
 
 export const selectArticleStub = (): SelectArticleDto => ({
    id: "1",

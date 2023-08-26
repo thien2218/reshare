@@ -8,7 +8,7 @@ import {
    SelectArticleDto,
    SelectArticleSchema,
    UpdateArticleDto
-} from "src/schemas/article.schema";
+} from "src/schemas/tables/article";
 import * as schema from "../schemas";
 import { and, eq, placeholder } from "drizzle-orm";
 import { nanoid } from "nanoid";

@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ArticleService } from "../article.service";
 import * as schema from "../../schemas";
 import { DatabaseModule } from "src/database/database.module";
-import { SelectArticleDto } from "src/schemas/article.schema";
+import { SelectArticleDto } from "src/schemas/tables/article";
 import { and, eq, placeholder } from "drizzle-orm";
 import {
    createArticleStub,
