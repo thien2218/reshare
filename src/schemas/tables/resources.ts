@@ -1,7 +1,7 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { users } from "./user";
-import { posts } from "./post";
-import { articles } from "./article";
+import { users } from "./users";
+import { posts } from "./posts";
+import { articles } from "./articles";
 import { relations } from "drizzle-orm";
 
 export const resources = sqliteTable("resources", {

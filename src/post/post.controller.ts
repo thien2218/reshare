@@ -18,7 +18,7 @@ import {
    CreatePostSchema,
    UpdatePostDto,
    UpdatePostSchema
-} from "src/schemas/post.schema";
+} from "src/schemas/validation";
 import { AccessGuard } from "src/guards/access.guard";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 

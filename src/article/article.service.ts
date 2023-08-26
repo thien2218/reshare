@@ -8,8 +8,8 @@ import {
    SelectArticleDto,
    SelectArticleSchema,
    UpdateArticleDto
-} from "src/schemas/tables/article";
-import * as schema from "../schemas";
+} from "src/schemas/validation";
+import { articles } from "src/schemas/tables";
 import { and, eq, placeholder } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
@@ -22,7 +22,7 @@ export class ArticleService {
    async findOneById(id: string): Promise<SelectArticleDto> {
       const prepared = this.dbService.db.query.articles
          .findFirst({
-            where: and(eq(schema.articles.id, placeholder("id")))
+            where: and(eq(articles.id, placeholder("id")))
          })
          .prepare();
 
@@ -46,7 +46,7 @@ export class ArticleService {
       };
 
       const prepared = this.dbService.db
-         .insert(schema.articles)
+         .insert(articles)
          .values(this.articlePlaceholders())
          .returning()
          .prepare();
@@ -64,12 +64,12 @@ export class ArticleService {
       updateArticleDto: UpdateArticleDto
    ): Promise<SelectArticleDto> {
       const prepared = await this.dbService.db
-         .update(schema.articles)
+         .update(articles)
          .set(updateArticleDto)
          .where(
             and(
-               eq(schema.articles.id, placeholder("id")),
-               eq(schema.articles.authorId, placeholder("userId"))
+               eq(articles.id, placeholder("id")),
+               eq(articles.authorId, placeholder("userId"))
             )
          )
          .returning()
@@ -85,13 +85,8 @@ export class ArticleService {
 
    async remove(id: string, userId: string) {
       const isDeleted = await this.dbService.db
-         .delete(schema.articles)
-         .where(
-            and(
-               eq(schema.articles.id, id),
-               eq(schema.articles.authorId, userId)
-            )
-         )
+         .delete(articles)
+         .where(and(eq(articles.id, id), eq(articles.authorId, userId)))
          .returning({})
          .get();
 

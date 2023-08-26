@@ -13,7 +13,7 @@ import {
    SelectUserDto,
    UpdateUserDto,
    UpdateUserSchema
-} from "src/schemas/user.schema";
+} from "src/schemas/validation";
 import { UserService } from "./user.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 

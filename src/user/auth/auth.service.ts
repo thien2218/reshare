@@ -3,8 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { nanoid } from "nanoid";
 import * as bcrypt from "bcrypt";
-import { CreateUserDto, SigninUserDto } from "src/schemas/user.schema";
-import * as schema from "../../schemas";
+import { CreateUserDto, SigninUserDto } from "src/schemas/validation";
+import { users } from "src/schemas/tables";
 import { eq, placeholder } from "drizzle-orm";
 import { UserRefresh, User } from "src/decorators/user.decorator";
 import { getTimestamp } from "src/utils/getTimestamp";
@@ -49,7 +49,7 @@ export class AuthService {
       const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
       const prepared = this.dbService.db
-         .insert(schema.users)
+         .insert(users)
          .values(this.userPlaceholders())
          .prepare();
 
@@ -63,7 +63,7 @@ export class AuthService {
    async signin({ email, password }: SigninUserDto): Promise<Tokens> {
       const preparedFind = this.dbService.db.query.users
          .findFirst({
-            where: eq(schema.users.email, placeholder("email"))
+            where: eq(users.email, placeholder("email"))
          })
          .prepare();
 
@@ -85,9 +85,9 @@ export class AuthService {
       const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
       const preparedUpdate = this.dbService.db
-         .update(schema.users)
+         .update(users)
          .set({ refreshToken })
-         .where(eq(schema.users.id, placeholder("id")))
+         .where(eq(users.id, placeholder("id")))
          .prepare();
 
       await preparedUpdate
@@ -101,9 +101,9 @@ export class AuthService {
       await this.checkRefreshToken(sub, refresh_token);
 
       const prepared = this.dbService.db
-         .update(schema.users)
+         .update(users)
          .set({ refreshToken: null })
-         .where(eq(schema.users.id, placeholder("id")));
+         .where(eq(users.id, placeholder("id")));
 
       await prepared.run({ id: sub }).catch(this.dbService.handleDbError);
 
@@ -121,9 +121,9 @@ export class AuthService {
          const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
 
          const prepared = this.dbService.db
-            .update(schema.users)
+            .update(users)
             .set({ refreshToken })
-            .where(eq(schema.users.id, placeholder("id")));
+            .where(eq(users.id, placeholder("id")));
 
          await prepared.run({ id: sub }).catch(this.dbService.handleDbError);
       }
@@ -160,7 +160,7 @@ export class AuthService {
    private async checkRefreshToken(sub: string, refreshToken: string) {
       const prepared = this.dbService.db.query.users
          .findFirst({
-            where: eq(schema.users.id, placeholder("id"))
+            where: eq(users.id, placeholder("id"))
          })
          .prepare();
 

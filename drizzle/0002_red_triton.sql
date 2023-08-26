@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX `articles_title_unique` ON `articles` (`title`);

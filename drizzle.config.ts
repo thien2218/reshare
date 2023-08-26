@@ -4,7 +4,7 @@ import * as dotenv from "dotenv"
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
  
 export default {
-   schema: "./src/schemas/tables",
+   schema: "./src/schemas/tables/_definition.ts",
    out: "./drizzle",
    dbCredentials: {
       url: process.env.DATABASE_URL as string,

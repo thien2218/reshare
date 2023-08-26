@@ -7,9 +7,9 @@ import {
    SelectUserDto,
    SelectUserSchema,
    UpdateUserDto
-} from "src/schemas/user.schema";
+} from "src/schemas/validation";
 import { eq, placeholder } from "drizzle-orm";
-import * as schema from "../schemas";
+import { users } from "src/schemas/tables";
 import { DatabaseService } from "src/database/database.service";
 
 @Injectable()
@@ -19,7 +19,7 @@ export class UserService {
    async findOneById(id: string): Promise<SelectUserDto> {
       const prepared = this.dbService.db.query.users
          .findFirst({
-            where: eq(schema.users.id, placeholder("id"))
+            where: eq(users.id, placeholder("id"))
          })
          .prepare();
 
@@ -35,9 +35,9 @@ export class UserService {
       updateUserDto: UpdateUserDto
    ): Promise<SelectUserDto> {
       const user = await this.dbService.db
-         .update(schema.users)
+         .update(users)
          .set(updateUserDto)
-         .where(eq(schema.users.id, id))
+         .where(eq(users.id, id))
          .returning()
          .get();
 
@@ -51,8 +51,8 @@ export class UserService {
 
    async remove(id: string) {
       const isDeleted = await this.dbService.db
-         .delete(schema.users)
-         .where(eq(schema.users.id, id))
+         .delete(users)
+         .where(eq(users.id, id))
          .returning({})
          .get();
 

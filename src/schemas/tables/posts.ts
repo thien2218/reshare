@@ -1,5 +1,5 @@
 import { blob, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { resources } from "./resource";
+import { resources } from "./resources";
 import { relations } from "drizzle-orm";
 
 // Table definition

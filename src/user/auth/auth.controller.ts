@@ -12,7 +12,7 @@ import {
    CreateUserSchema,
    SigninUserDto,
    SigninUserSchema
-} from "src/schemas/user.schema";
+} from "src/schemas/validation";
 import { UserRefresh, User } from "src/decorators/user.decorator";
 import { FastifyReply } from "fastify";
 import { AuthService } from "./auth.service";

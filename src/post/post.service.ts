@@ -10,8 +10,8 @@ import {
    SelectPostDto,
    SelectPostSchema,
    UpdatePostDto
-} from "src/schemas/post.schema";
-import * as schema from "../schemas";
+} from "src/schemas/validation";
+import { posts } from "src/schemas/tables";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
 
@@ -32,7 +32,7 @@ export class PostService {
       };
 
       const prepare = this.dbService.db
-         .insert(schema.posts)
+         .insert(posts)
          .values(this.postPlaceholders())
          .returning()
          .prepare();
@@ -47,7 +47,7 @@ export class PostService {
    async findOneById(id: string): Promise<SelectPostDto> {
       const prepare = this.dbService.db.query.posts
          .findFirst({
-            where: and(eq(schema.posts.id, placeholder("id")))
+            where: and(eq(posts.id, placeholder("id")))
          })
          .prepare();
 
@@ -64,12 +64,12 @@ export class PostService {
       updatePostDto: UpdatePostDto
    ): Promise<SelectPostDto> {
       const prepared = this.dbService.db
-         .update(schema.posts)
+         .update(posts)
          .set(updatePostDto)
          .where(
             and(
-               eq(schema.posts.id, placeholder("id")),
-               eq(schema.posts.authorId, placeholder("userId"))
+               eq(posts.id, placeholder("id")),
+               eq(posts.authorId, placeholder("userId"))
             )
          )
          .returning()
@@ -84,8 +84,8 @@ export class PostService {
 
    async remove(id: string, userId: string) {
       const isDeleted = await this.dbService.db
-         .delete(schema.posts)
-         .where(and(eq(schema.posts.id, id), eq(schema.posts.authorId, userId)))
+         .delete(posts)
+         .where(and(eq(posts.id, id), eq(posts.authorId, userId)))
          .returning({})
          .get();
 
