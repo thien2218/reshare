@@ -17,7 +17,8 @@ import {
    CreatePostDto,
    CreatePostSchema,
    UpdatePostDto,
-   UpdatePostSchema
+   UpdatePostSchema,
+   UserDto
 } from "src/schemas/validation";
 import { AccessGuard } from "src/guards/access.guard";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
@@ -30,8 +31,8 @@ export class PostController {
    @HttpCode(HttpStatus.CREATED)
    @UsePipes(new ZodValidationPipe(CreatePostSchema))
    @Post()
-   async create(@User() { sub }: User, @Body() createPostDto: CreatePostDto) {
-      return this.postService.create(sub, createPostDto);
+   async create(@User() user: UserDto, @Body() createPostDto: CreatePostDto) {
+      return this.postService.create(user, createPostDto);
    }
 
    @Get(":id")
@@ -44,7 +45,7 @@ export class PostController {
    @Put(":id")
    async update(
       @Param("id") id: string,
-      @User() { sub }: User,
+      @User() { sub }: UserDto,
       @Body() updatePostDto: UpdatePostDto
    ) {
       return this.postService.update(id, sub, updatePostDto);
@@ -53,7 +54,7 @@ export class PostController {
    @UseGuards(AccessGuard)
    @HttpCode(HttpStatus.NO_CONTENT)
    @Delete(":id")
-   async remove(@Param("id") id: string, @User() { sub }: User) {
+   async remove(@Param("id") id: string, @User() { sub }: UserDto) {
       return this.postService.remove(id, sub);
    }
 }

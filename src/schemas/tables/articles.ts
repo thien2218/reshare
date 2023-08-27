@@ -12,7 +12,7 @@ export const articles = sqliteTable("articles", {
 });
 
 export const articleResourceRelation = relations(articles, ({ one }) => ({
-   resource: one(resources, {
+   info: one(resources, {
       fields: [articles.id],
       references: [resources.articleId]
    })

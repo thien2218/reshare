@@ -17,7 +17,8 @@ import {
    CreateArticleSchema,
    SelectArticleDto,
    UpdateArticleDto,
-   UpdateArticleSchema
+   UpdateArticleSchema,
+   UserDto
 } from "src/schemas/validation";
 import { AccessGuard } from "src/guards/access.guard";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
@@ -32,10 +33,10 @@ export class ArticleController {
    @UsePipes(new ZodValidationPipe(CreateArticleSchema))
    @Post()
    async create(
-      @User() { sub }: User,
+      @User() user: UserDto,
       @Body() createArticleDto: CreateArticleDto
    ): Promise<SelectArticleDto> {
-      return this.articleService.create(sub, createArticleDto);
+      return this.articleService.create(user, createArticleDto);
    }
 
    @Get(":id")
@@ -48,7 +49,7 @@ export class ArticleController {
    @Put(":id")
    async update(
       @Param("id") id: string,
-      @User() { sub }: User,
+      @User() { sub }: UserDto,
       @Body() updateArticleDto: UpdateArticleDto
    ): Promise<SelectArticleDto> {
       return this.articleService.update(id, sub, updateArticleDto);
@@ -57,7 +58,7 @@ export class ArticleController {
    @HttpCode(HttpStatus.NO_CONTENT)
    @UseGuards(AccessGuard)
    @Delete(":id")
-   async remove(@Param("id") id: string, @User() { sub }: User) {
+   async remove(@Param("id") id: string, @User() { sub }: UserDto) {
       return this.articleService.remove(id, sub);
    }
 }

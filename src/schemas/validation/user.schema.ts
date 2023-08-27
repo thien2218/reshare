@@ -2,6 +2,30 @@ import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
 import { users } from "../tables";
 
+// Validation schemas
+const UserObjSchema = z.object({
+   id: z.string(),
+   username: z.string(),
+   firstName: z.string(),
+   lastName: z.string(),
+   email: z.string().email(),
+   emailVerified: z.boolean(),
+   photoUrl: z.string().nullable()
+});
+
+export const UserSchema = UserObjSchema.transform((obj) => {
+   const { id, ...rest } = obj;
+   return { sub: id, ...rest };
+});
+
+export const UserRefreshSchema = UserObjSchema.extend({
+   refreshToken: z.string(),
+   exp: z.number()
+}).transform((obj) => {
+   const { id, ...rest } = obj;
+   return { sub: id, ...rest };
+});
+
 export const CreateUserSchema = z
    .object({
       username: z.string().min(3).max(24),
@@ -43,6 +67,8 @@ export const SigninUserSchema = z.object({
 });
 
 // DTOs
+export type UserDto = z.infer<typeof UserSchema>;
+export type UserRefreshDto = z.infer<typeof UserRefreshSchema>;
 export type CreateUserDto = z.output<typeof CreateUserSchema>;
 export type SelectUserDto = z.infer<typeof SelectUserSchema>;
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;

@@ -2,27 +2,25 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { nanoid } from "nanoid";
-import * as bcrypt from "bcrypt";
-import { CreateUserDto, SigninUserDto } from "src/schemas/validation";
+import { hash, compare } from "bcrypt";
+import {
+   CreateUserDto,
+   SigninUserDto,
+   UserRefreshDto,
+   UserSchema
+} from "src/schemas/validation";
 import { users } from "src/schemas/tables";
 import { eq, placeholder } from "drizzle-orm";
-import { UserRefresh, User } from "src/decorators/user.decorator";
 import { getTimestamp } from "src/utils/getTimestamp";
 import { DatabaseService } from "src/database/database.service";
+import { input } from "zod";
 
 export type Tokens = {
    accessToken: string;
    refreshToken: string;
 };
 
-type UserPayload = {
-   id: string;
-   email: string;
-   username: string;
-   firstName: string;
-   lastName: string;
-   emailVerified: boolean;
-};
+type UserPayload = input<typeof UserSchema>;
 
 @Injectable()
 export class AuthService {
@@ -33,7 +31,7 @@ export class AuthService {
    ) {}
 
    async signup({ password, ...data }: CreateUserDto): Promise<Tokens> {
-      const encryptedPassword = await bcrypt.hash(password, 12);
+      const encryptedPassword = await hash(password, 12);
 
       const values = {
          id: nanoid(25),
@@ -46,7 +44,7 @@ export class AuthService {
       };
 
       const tokens = await this.generateTokens(values);
-      const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+      const refreshToken = await hash(tokens.refreshToken, 10);
 
       const prepared = this.dbService.db
          .insert(users)
@@ -73,16 +71,17 @@ export class AuthService {
          throw new BadRequestException("Incorrect email or password");
       }
 
-      const isValidPw = await bcrypt
-         .compare(password, user.encryptedPassword as string)
-         .catch(() => false);
+      const isValidPw = await compare(
+         password,
+         user.encryptedPassword as string
+      ).catch(() => false);
 
       if (!isValidPw) {
          throw new BadRequestException("Incorrect email or password");
       }
 
       const tokens = await this.generateTokens(user);
-      const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+      const refreshToken = await hash(tokens.refreshToken, 10);
 
       const preparedUpdate = this.dbService.db
          .update(users)
@@ -97,8 +96,8 @@ export class AuthService {
       return tokens;
    }
 
-   async signout({ sub, refresh_token }: UserRefresh): Promise<string> {
-      await this.checkRefreshToken(sub, refresh_token);
+   async signout({ sub, refreshToken }: UserRefreshDto): Promise<string> {
+      await this.checkRefreshToken(sub, refreshToken);
 
       const prepared = this.dbService.db
          .update(users)
@@ -111,18 +110,18 @@ export class AuthService {
    }
 
    async refresh(
-      { sub, refresh_token }: UserRefresh,
+      { sub, refreshToken }: UserRefreshDto,
       tokenExpired: boolean
    ): Promise<Tokens> {
-      const user = await this.checkRefreshToken(sub, refresh_token);
+      const user = await this.checkRefreshToken(sub, refreshToken);
       const tokens = await this.generateTokens(user);
 
       if (tokenExpired) {
-         const refreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+         const newRefreshToken = await hash(tokens.refreshToken, 10);
 
          const prepared = this.dbService.db
             .update(users)
-            .set({ refreshToken })
+            .set({ refreshToken: newRefreshToken })
             .where(eq(users.id, placeholder("id")));
 
          await prepared.run({ id: sub }).catch(this.dbService.handleDbError);
@@ -134,14 +133,7 @@ export class AuthService {
    // PRIVATE
 
    private async generateTokens(user: UserPayload): Promise<Tokens> {
-      const payload: User = {
-         sub: user.id,
-         email: user.email,
-         username: user.username,
-         first_name: user.firstName,
-         last_name: user.lastName,
-         email_verified: user.emailVerified
-      };
+      const payload = UserSchema.parse(user);
 
       const [accessToken, refreshToken] = await Promise.all([
          this.jwtService.signAsync(payload, {
@@ -170,9 +162,10 @@ export class AuthService {
          throw new BadRequestException("Invalid refresh token");
       }
 
-      const isValidRefreshToken = await bcrypt
-         .compare(refreshToken, user.refreshToken as string)
-         .catch(() => false);
+      const isValidRefreshToken = await compare(
+         refreshToken,
+         user.refreshToken as string
+      ).catch(() => false);
 
       if (!isValidRefreshToken) {
          throw new BadRequestException("Invalid refresh token");

@@ -7,23 +7,77 @@ import {
    CreateArticleDto,
    SelectArticleDto,
    SelectArticleSchema,
-   UpdateArticleDto
+   UpdateArticleDto,
+   UserDto
 } from "src/schemas/validation";
-import { articles } from "src/schemas/tables";
-import { and, eq, placeholder } from "drizzle-orm";
+import { articles, resources, users } from "src/schemas/tables";
+import { and, eq, inArray, placeholder } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
 import { DatabaseService } from "src/database/database.service";
+import { alias } from "drizzle-orm/sqlite-core";
 
 @Injectable()
 export class ArticleService {
    constructor(private readonly dbService: DatabaseService) {}
 
+   async create(
+      { sub, ...userRest }: UserDto,
+      createArticleDto: CreateArticleDto
+   ): Promise<SelectArticleDto> {
+      const { scope, allowComments, ...articleDto } = createArticleDto;
+
+      const articleValues = {
+         id: nanoid(25),
+         ...articleDto
+      };
+
+      const resourceValues = {
+         id: nanoid(25),
+         authorId: sub,
+         scope,
+         allowComments,
+         createdAt: getTimestamp(),
+         updatedAt: getTimestamp()
+      };
+
+      const articleInfo = await this.dbService.db.transaction(async (txn) => {
+         const articlePrepare = txn
+            .insert(articles)
+            .values(this.articlePlaceholders())
+            .returning()
+            .prepare();
+
+         const article = await articlePrepare.get(articleValues);
+         if (!article) throw new BadRequestException("Invalid user id");
+
+         const resourcePrepare = txn
+            .insert(resources)
+            .values(this.resourcePlaceholders())
+            .returning()
+            .prepare();
+
+         const details = await resourcePrepare.get(resourceValues);
+         if (!details) throw new BadRequestException("Invalid user id");
+
+         return { article, details, author: { id: sub, ...userRest } };
+      });
+
+      const result = SelectArticleSchema.parse(articleInfo);
+      return result;
+   }
+
    async findOneById(id: string): Promise<SelectArticleDto> {
-      const prepared = this.dbService.db.query.articles
-         .findFirst({
-            where: and(eq(articles.id, placeholder("id")))
-         })
+      const details = alias(resources, "details");
+      const author = alias(users, "author");
+
+      const prepared = this.dbService.db
+         .select()
+         .from(articles)
+         .where(eq(articles.id, placeholder("id")))
+         .innerJoin(details, eq(articles.id, details.articleId))
+         .innerJoin(author, eq(details.authorId, author.id))
+         .limit(1)
          .prepare();
 
       const article = await prepared.get({ id });
@@ -33,49 +87,34 @@ export class ArticleService {
       return result;
    }
 
-   async create(
-      userId: string,
-      createArticleDto: CreateArticleDto
-   ): Promise<SelectArticleDto> {
-      const values = {
-         id: nanoid(25),
-         ...createArticleDto,
-         authorId: userId,
-         createdAt: getTimestamp(),
-         updatedAt: getTimestamp()
-      };
-
-      const prepared = this.dbService.db
-         .insert(articles)
-         .values(this.articlePlaceholders())
-         .returning()
-         .prepare();
-      const article = await prepared.get(values);
-
-      if (!article) throw new BadRequestException("Invalid user id");
-
-      const result = SelectArticleSchema.parse(values);
-      return result;
-   }
-
    async update(
       id: string,
       userId: string,
       updateArticleDto: UpdateArticleDto
    ): Promise<SelectArticleDto> {
-      const prepared = await this.dbService.db
+      const subquery = this.dbService.db
+         .select({ articleId: resources.articleId })
+         .from(resources)
+         .where(
+            and(
+               eq(resources.articleId, placeholder("id")),
+               eq(resources.authorId, placeholder("userId"))
+            )
+         );
+
+      const prepared = this.dbService.db
          .update(articles)
          .set(updateArticleDto)
          .where(
             and(
                eq(articles.id, placeholder("id")),
-               eq(articles.authorId, placeholder("userId"))
+               inArray(articles.id, subquery)
             )
          )
          .returning()
          .prepare();
-      const article = await prepared.get({ id, userId });
 
+      const article = await prepared.get({ id, userId });
       if (!article)
          throw new BadRequestException("Invalid article id or user id");
 
@@ -84,9 +123,21 @@ export class ArticleService {
    }
 
    async remove(id: string, userId: string) {
+      const subquery = this.dbService.db
+         .select({ articleId: resources.articleId })
+         .from(resources)
+         .where(
+            and(eq(resources.articleId, id), eq(resources.authorId, userId))
+         );
+
       const isDeleted = await this.dbService.db
          .delete(articles)
-         .where(and(eq(articles.id, id), eq(articles.authorId, userId)))
+         .where(
+            and(
+               eq(articles.id, placeholder("id")),
+               inArray(articles.id, subquery)
+            )
+         )
          .returning({})
          .get();
 
@@ -98,14 +149,18 @@ export class ArticleService {
    private articlePlaceholders() {
       return {
          id: placeholder("id"),
-         authorId: placeholder("authorId"),
          title: placeholder("title"),
          contentMdUrl: placeholder("contentMdUrl"),
-         wordCount: placeholder("wordCount"),
+         wordCount: placeholder("wordCount")
+      };
+   }
 
+   private resourcePlaceholders() {
+      return {
+         id: placeholder("id"),
+         authorId: placeholder("authorId"),
          scope: placeholder("scope"),
          allowComments: placeholder("allowComments"),
-
          createdAt: placeholder("createdAt"),
          updatedAt: placeholder("updatedAt")
       };

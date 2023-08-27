@@ -2,7 +2,7 @@ import { LibsqlError, createClient } from "@libsql/client";
 import { BadRequestException, Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LibSQLDatabase, drizzle } from "drizzle-orm/libsql";
-import * as schema from "../schemas";
+import * as schema from "../schemas/tables";
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {

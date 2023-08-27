@@ -11,13 +11,14 @@ import {
    CreateUserDto,
    CreateUserSchema,
    SigninUserDto,
-   SigninUserSchema
+   SigninUserSchema,
+   UserRefreshDto
 } from "src/schemas/validation";
-import { UserRefresh, User } from "src/decorators/user.decorator";
 import { FastifyReply } from "fastify";
 import { AuthService } from "./auth.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 import { RefreshGuard } from "src/guards/refresh.guard";
+import { User } from "src/decorators/user.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -48,7 +49,7 @@ export class AuthController {
 
    @UseGuards(RefreshGuard)
    @Post("signout")
-   async signout(@User() userRf: UserRefresh, @Res() res: FastifyReply) {
+   async signout(@User() userRf: UserRefreshDto, @Res() res: FastifyReply) {
       const message = await this.authService.signout(userRf);
       res.clearCookie("reshare-refresh-token");
       res.send({ message });
@@ -56,7 +57,7 @@ export class AuthController {
 
    @UseGuards(RefreshGuard)
    @Post("refresh")
-   async refresh(@User() userRf: UserRefresh, @Res() res: FastifyReply) {
+   async refresh(@User() userRf: UserRefreshDto, @Res() res: FastifyReply) {
       // Check if the user's refresh token expires in less than 7 days (in seconds)
       // If so, generate a new refresh token and set it to cookie
       // Otherwise, just return a new access token
