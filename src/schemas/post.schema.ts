@@ -2,7 +2,6 @@ import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
 import { posts } from "../database/tables";
 import { SelectResourceSchema } from "./resource.schema";
-import { SelectUserSchema } from "./user.schema";
 
 // Validation schemas
 export const CreatePostSchema = z.object({
@@ -19,14 +18,8 @@ export const UpdatePostSchema = CreatePostSchema.partial()
       message: "At least one field must be provided"
    });
 
-export const SelectPostSchema = z.object({
-   post: createSelectSchema(posts),
-   details: SelectResourceSchema,
-   author: SelectUserSchema.omit({
-      createdAt: true,
-      updatedAt: true,
-      bio: true
-   })
+export const SelectPostSchema = SelectResourceSchema.extend({
+   post: createSelectSchema(posts)
 });
 
 // Types

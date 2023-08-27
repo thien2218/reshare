@@ -13,10 +13,10 @@ export class UserService {
    constructor(private readonly dbService: DatabaseService) {}
 
    async findOneById(id: string): Promise<SelectUserDto> {
-      const prepared = this.dbService.db.query.users
-         .findFirst({
-            where: eq(users.id, placeholder("id"))
-         })
+      const prepared = this.dbService.db
+         .select()
+         .from(users)
+         .where(eq(users.id, placeholder("id")))
          .prepare();
 
       const user = await prepared.get({ id });

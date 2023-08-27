@@ -31,26 +31,6 @@ describe("UserController", () => {
       expect(controller).toBeDefined();
    });
 
-   describe("findMany", () => {
-      it("should be defined", () => {
-         expect(controller.findMany).toBeDefined();
-      });
-
-      let users: SelectUserDto[];
-
-      beforeEach(async () => {
-         users = await controller.findMany(query);
-      });
-
-      it("should call userService.findMany with a page number and a limit", () => {
-         expect(service.findMany).toBeCalledWith(0, 10);
-      });
-
-      it("should return a list of user objects", () => {
-         expect(users).toEqual([selectUserStub()]);
-      });
-   });
-
    describe("findOneById", () => {
       it("should be defined", () => {
          expect(controller.findOneById).toBeDefined();

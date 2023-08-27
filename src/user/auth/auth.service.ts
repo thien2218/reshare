@@ -59,10 +59,10 @@ export class AuthService {
    }
 
    async signin({ email, password }: SigninUserDto): Promise<Tokens> {
-      const preparedFind = this.dbService.db.query.users
-         .findFirst({
-            where: eq(users.email, placeholder("email"))
-         })
+      const preparedFind = this.dbService.db
+         .select()
+         .from(users)
+         .where(eq(users.email, placeholder("email")))
          .prepare();
 
       const user = await preparedFind.get({ email });
@@ -150,10 +150,10 @@ export class AuthService {
    }
 
    private async checkRefreshToken(sub: string, refreshToken: string) {
-      const prepared = this.dbService.db.query.users
-         .findFirst({
-            where: eq(users.id, placeholder("id"))
-         })
+      const prepared = this.dbService.db
+         .select()
+         .from(users)
+         .where(eq(users.id, placeholder("id")))
          .prepare();
 
       const user = await prepared.get({ id: sub });

@@ -75,7 +75,6 @@ export class ArticleService {
          .where(eq(articles.id, placeholder("id")))
          .innerJoin(details, eq(articles.id, details.articleId))
          .innerJoin(author, eq(details.authorId, author.id))
-         .limit(1)
          .prepare();
 
       const article = await prepared.get({ id });
@@ -103,12 +102,7 @@ export class ArticleService {
       const prepared = this.dbService.db
          .update(articles)
          .set(updateArticleDto)
-         .where(
-            and(
-               eq(articles.id, placeholder("id")),
-               inArray(articles.id, subquery)
-            )
-         )
+         .where(eq(articles.id, subquery))
          .returning()
          .prepare();
 
@@ -130,12 +124,7 @@ export class ArticleService {
 
       const isDeleted = await this.dbService.db
          .delete(articles)
-         .where(
-            and(
-               eq(articles.id, placeholder("id")),
-               inArray(articles.id, subquery)
-            )
-         )
+         .where(eq(articles.id, subquery))
          .returning({})
          .get();
 

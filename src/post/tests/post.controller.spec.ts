@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { PostController } from "../post.controller";
 import { PostService } from "../post.service";
-import { SelectPostDto } from "src/schemas/post.schema";
+import { SelectPostDto } from "src/schemas";
 import { createPostStub, selectPostStub, updatePostStub } from "./post.stub";
 import { userJwtStub } from "src/user/tests/user.stub";
 

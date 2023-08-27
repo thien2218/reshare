@@ -12,7 +12,9 @@ export const createUserStub = () => ({
    password: "password",
    username: "username",
    firstName: "firstName",
-   lastName: "lastName"
+   lastName: "lastName",
+   bio: null,
+   photoUrl: null
 });
 
 export const signInUserStub = () => ({
@@ -23,20 +25,21 @@ export const signInUserStub = () => ({
 export const userPayloadStub = () => ({
    sub: "sub",
    username: "username",
-   first_name: "first_name",
-   last_name: "last_name",
+   firstName: "first_name",
+   lastName: "last_name",
    email: "email",
-   email_verified: false
+   emailVerified: false,
+   photoUrl: null
 });
 
 export const refreshPayloadSetNewStub = () => ({
    ...userPayloadStub(),
-   refresh_token: "refresh_token",
+   refreshToken: "refresh_token",
    exp: (new Date().getTime() / 1000) | 0
 });
 
 export const refreshPayloadStub = () => ({
    ...userPayloadStub(),
-   refresh_token: "refresh_token",
+   refreshToken: "refresh_token",
    exp: ((new Date().getTime() / 1000) | 0) + 60 * 60 * 24 * 8
 });

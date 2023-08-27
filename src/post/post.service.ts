@@ -75,7 +75,6 @@ export class PostService {
          .where(eq(posts.id, placeholder("id")))
          .innerJoin(details, eq(posts.id, details.articleId))
          .innerJoin(author, eq(details.authorId, author.id))
-         .limit(1)
          .prepare();
 
       const post = await prepared.get({ id });
@@ -103,9 +102,7 @@ export class PostService {
       const prepared = this.dbService.db
          .update(posts)
          .set(updatePostDto)
-         .where(
-            and(eq(posts.id, placeholder("id")), inArray(posts.id, subquery))
-         )
+         .where(eq(posts.id, subquery))
          .returning()
          .prepare();
       const post = await prepared.get({ id, userId });
@@ -124,9 +121,7 @@ export class PostService {
 
       const isDeleted = await this.dbService.db
          .delete(posts)
-         .where(
-            and(eq(posts.id, placeholder("id")), inArray(posts.id, subquery))
-         )
+         .where(eq(posts.id, subquery))
          .returning({})
          .get();
 

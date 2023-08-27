@@ -1,6 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthController } from "../auth.controller";
-import { CreateUserDto, SigninUserDto } from "src/schemas/user.schema";
+import {
+   CreateUserDto,
+   RefreshUserDto,
+   SigninUserDto
+} from "src/schemas/user.schema";
 import {
    createUserStub,
    refreshPayloadSetNewStub,
@@ -9,7 +13,6 @@ import {
    tokensStub
 } from "./auth.stub";
 import { AuthService } from "../auth.service";
-import { UserRefresh } from "src/decorators/user.decorator";
 
 jest.mock("../auth.service");
 
@@ -106,7 +109,7 @@ describe("AuthController", () => {
    });
 
    describe("signout", () => {
-      let rfPayload: UserRefresh;
+      let rfPayload: RefreshUserDto;
 
       beforeEach(async () => {
          rfPayload = refreshPayloadStub();
@@ -133,7 +136,7 @@ describe("AuthController", () => {
    });
 
    describe("refresh", () => {
-      let rfPayload: UserRefresh;
+      let rfPayload: RefreshUserDto;
 
       beforeEach(async () => {
          rfPayload = refreshPayloadSetNewStub();

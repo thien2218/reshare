@@ -1,7 +1,11 @@
-export const createPostStub = () => ({
+import { CreatePostDto } from "src/schemas";
+
+export const createPostStub = (): CreatePostDto => ({
    content: "content",
    imgAttachments: ["img1", "img2"],
-   urlAttachments: ["url1", "url2"]
+   urlAttachments: ["url1", "url2"],
+   scope: "public",
+   allowComments: true
 });
 
 export const selectPostStub = () => ({

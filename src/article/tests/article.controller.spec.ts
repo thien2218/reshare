@@ -6,8 +6,8 @@ import {
    createArticleStub,
    updateArticleStub
 } from "./article.stub";
-import { SelectArticleDto } from "src/database/tables/articles";
 import { userJwtStub } from "src/user/tests/user.stub";
+import { SelectArticleDto } from "src/schemas";
 
 jest.mock("../article.service");
 

@@ -1,7 +1,6 @@
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { articles } from "../database/tables";
-import { SelectUserSchema } from "./user.schema";
 import { SelectResourceSchema } from "./resource.schema";
 
 // Validation schemas
@@ -19,14 +18,8 @@ export const UpdateArticleSchema = CreateArticleSchema.partial()
       message: "At least one property must be present"
    });
 
-export const SelectArticleSchema = z.object({
-   article: createSelectSchema(articles),
-   details: SelectResourceSchema,
-   author: SelectUserSchema.omit({
-      createdAt: true,
-      updatedAt: true,
-      bio: true
-   })
+export const SelectArticleSchema = SelectResourceSchema.extend({
+   article: createSelectSchema(articles)
 });
 
 // Types
