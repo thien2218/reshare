@@ -9,8 +9,8 @@ import {
    SelectArticleSchema,
    UpdateArticleDto,
    UserDto
-} from "src/schemas/validation";
-import { articles, resources, users } from "src/schemas/tables";
+} from "src/schemas";
+import { articles, resources, users } from "src/database/tables";
 import { and, eq, inArray, placeholder } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
@@ -23,13 +23,11 @@ export class ArticleService {
 
    async create(
       { sub, ...userRest }: UserDto,
-      createArticleDto: CreateArticleDto
+      { scope, allowComments, ...articleRest }: CreateArticleDto
    ): Promise<SelectArticleDto> {
-      const { scope, allowComments, ...articleDto } = createArticleDto;
-
       const articleValues = {
          id: nanoid(25),
-         ...articleDto
+         ...articleRest
       };
 
       const resourceValues = {

@@ -6,10 +6,10 @@ import { hash, compare } from "bcrypt";
 import {
    CreateUserDto,
    SigninUserDto,
-   UserRefreshDto,
+   RefreshUserDto,
    UserSchema
-} from "src/schemas/validation";
-import { users } from "src/schemas/tables";
+} from "src/schemas";
+import { users } from "src/database/tables";
 import { eq, placeholder } from "drizzle-orm";
 import { getTimestamp } from "src/utils/getTimestamp";
 import { DatabaseService } from "src/database/database.service";
@@ -96,7 +96,7 @@ export class AuthService {
       return tokens;
    }
 
-   async signout({ sub, refreshToken }: UserRefreshDto): Promise<string> {
+   async signout({ sub, refreshToken }: RefreshUserDto): Promise<string> {
       await this.checkRefreshToken(sub, refreshToken);
 
       const prepared = this.dbService.db
@@ -110,7 +110,7 @@ export class AuthService {
    }
 
    async refresh(
-      { sub, refreshToken }: UserRefreshDto,
+      { sub, refreshToken }: RefreshUserDto,
       tokenExpired: boolean
    ): Promise<Tokens> {
       const user = await this.checkRefreshToken(sub, refreshToken);

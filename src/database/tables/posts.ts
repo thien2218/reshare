@@ -1,6 +1,4 @@
 import { blob, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { resources } from "./resources";
-import { relations } from "drizzle-orm";
 
 // Table definition
 export const posts = sqliteTable("posts", {
@@ -9,10 +7,3 @@ export const posts = sqliteTable("posts", {
    imgAttachments: blob("img_attachments", { mode: "json" }).$type<string[]>(),
    urlAttachments: blob("url_attachments", { mode: "json" }).$type<string[]>()
 });
-
-export const postResourceRelation = relations(posts, ({ one }) => ({
-   info: one(resources, {
-      fields: [posts.id],
-      references: [resources.articleId]
-   })
-}));

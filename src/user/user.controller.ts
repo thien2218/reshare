@@ -9,11 +9,7 @@ import {
    HttpCode,
    HttpStatus
 } from "@nestjs/common";
-import {
-   SelectUserDto,
-   UpdateUserDto,
-   UpdateUserSchema
-} from "src/schemas/validation";
+import { SelectUserDto, UpdateUserDto, UpdateUserSchema } from "src/schemas";
 import { UserService } from "./user.service";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 

@@ -1,8 +1,18 @@
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
-import { users } from "../tables";
+import { users } from "../database/tables";
 
 // Validation schemas
+const UserInputSchema = z.object({
+   username: z.string().min(3).max(24),
+   email: z.string().email(),
+   firstName: z.string().nonempty().max(30),
+   lastName: z.string().nonempty().max(30),
+   photoUrl: z.string().url().nullable().default(null),
+   bio: z.string().max(500).nullable().default(null),
+   password: z.string().min(6).max(24)
+});
+
 const UserObjSchema = z.object({
    id: z.string(),
    username: z.string(),
@@ -18,7 +28,7 @@ export const UserSchema = UserObjSchema.transform((obj) => {
    return { sub: id, ...rest };
 });
 
-export const UserRefreshSchema = UserObjSchema.extend({
+export const RefreshUserSchema = UserObjSchema.extend({
    refreshToken: z.string(),
    exp: z.number()
 }).transform((obj) => {
@@ -26,17 +36,9 @@ export const UserRefreshSchema = UserObjSchema.extend({
    return { sub: id, ...rest };
 });
 
-export const CreateUserSchema = z
-   .object({
-      username: z.string().min(3).max(24),
-      email: z.string().email(),
-      firstName: z.string().nonempty().max(30),
-      lastName: z.string().nonempty().max(30),
-      photoUrl: z.string().url().nullable().default(null),
-      bio: z.string().max(500).nullable().default(null),
-      password: z.string().min(6).max(24),
-      confirmPw: z.string().min(6).max(24)
-   })
+export const CreateUserSchema = UserInputSchema.extend({
+   confirmPw: z.string().min(6).max(24)
+})
    .refine((value) => value.password === value.confirmPw, {
       message: "Passwords don't match",
       path: ["confirmPw"]
@@ -52,14 +54,10 @@ export const SelectUserSchema = createSelectSchema(users).omit({
    provider: true
 });
 
-export const UpdateUserSchema = SelectUserSchema.partial()
-   .omit({
-      id: true,
-      emailVerified: true
-   })
-   .refine((obj) => Object.values(obj).some((val) => val !== undefined), {
-      message: "At least one property must be present"
-   });
+export const UpdateUserSchema = UserInputSchema.partial().refine(
+   (obj) => Object.values(obj).some((val) => val !== undefined),
+   { message: "At least one property must be present" }
+);
 
 export const SigninUserSchema = z.object({
    email: z.string().email(),
@@ -68,8 +66,8 @@ export const SigninUserSchema = z.object({
 
 // DTOs
 export type UserDto = z.infer<typeof UserSchema>;
-export type UserRefreshDto = z.infer<typeof UserRefreshSchema>;
-export type CreateUserDto = z.output<typeof CreateUserSchema>;
+export type RefreshUserDto = z.infer<typeof RefreshUserSchema>;
+export type CreateUserDto = z.infer<typeof CreateUserSchema>;
 export type SelectUserDto = z.infer<typeof SelectUserSchema>;
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
 export type SigninUserDto = z.infer<typeof SigninUserSchema>;

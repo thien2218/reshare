@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
-import { posts, resources, users } from "../tables";
+import { posts } from "../database/tables";
+import { SelectResourceSchema } from "./resource.schema";
+import { SelectUserSchema } from "./user.schema";
 
 // Validation schemas
 export const CreatePostSchema = z.object({
@@ -19,18 +21,10 @@ export const UpdatePostSchema = CreatePostSchema.partial()
 
 export const SelectPostSchema = z.object({
    post: createSelectSchema(posts),
-   details: createSelectSchema(resources).omit({
-      id: true,
-      articleId: true,
-      postId: true,
-      authorId: true
-   }),
-   author: createSelectSchema(users).omit({
+   details: SelectResourceSchema,
+   author: SelectUserSchema.omit({
       createdAt: true,
       updatedAt: true,
-      encryptedPassword: true,
-      provider: true,
-      refreshToken: true,
       bio: true
    })
 });

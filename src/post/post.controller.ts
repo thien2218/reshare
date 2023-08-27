@@ -19,7 +19,7 @@ import {
    UpdatePostDto,
    UpdatePostSchema,
    UserDto
-} from "src/schemas/validation";
+} from "src/schemas";
 import { AccessGuard } from "src/guards/access.guard";
 import { ZodValidationPipe } from "src/pipes/zod-validation.pipe";
 

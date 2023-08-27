@@ -11,8 +11,8 @@ import {
    SelectPostSchema,
    UpdatePostDto,
    UserDto
-} from "src/schemas/validation";
-import { posts, resources, users } from "src/schemas/tables";
+} from "src/schemas";
+import { posts, resources, users } from "src/database/tables";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
 import { alias } from "drizzle-orm/sqlite-core";

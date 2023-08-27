@@ -2,7 +2,6 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 import { posts } from "./posts";
 import { articles } from "./articles";
-import { relations } from "drizzle-orm";
 
 export const resources = sqliteTable("resources", {
    id: text("id").primaryKey(),
@@ -26,10 +25,3 @@ export const resources = sqliteTable("resources", {
    createdAt: text("created_at").notNull(),
    updatedAt: text("updated_at").notNull()
 });
-
-export const resourceUserRelation = relations(resources, ({ one }) => ({
-   author: one(users, {
-      fields: [resources.authorId],
-      references: [users.id]
-   })
-}));

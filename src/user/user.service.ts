@@ -3,13 +3,9 @@ import {
    Injectable,
    NotFoundException
 } from "@nestjs/common";
-import {
-   SelectUserDto,
-   SelectUserSchema,
-   UpdateUserDto
-} from "src/schemas/validation";
+import { SelectUserDto, SelectUserSchema, UpdateUserDto } from "src/schemas";
 import { eq, placeholder } from "drizzle-orm";
-import { users } from "src/schemas/tables";
+import { users } from "src/database/tables";
 import { DatabaseService } from "src/database/database.service";
 
 @Injectable()
