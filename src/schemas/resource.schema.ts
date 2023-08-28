@@ -3,6 +3,7 @@ import { resources } from "../database/tables";
 import { SelectUserSchema } from "./user.schema";
 import { z } from "zod";
 
+// Validation schemas
 export const SelectResourceSchema = z.object({
    details: createSelectSchema(resources).omit({
       id: true,
@@ -23,3 +24,8 @@ export const CreateResourceSchema = z.object({
 });
 
 export const UpdateResourceSchema = CreateResourceSchema.partial();
+
+export const UpdateReactionSchema = z.enum(["like", "dislike"]);
+
+// DTOs
+export type UpdateResourceDto = z.infer<typeof UpdateResourceSchema>;

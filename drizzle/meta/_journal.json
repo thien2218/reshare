@@ -15,6 +15,13 @@
       "when": 1693018807635,
       "tag": "0001_foamy_clint_barton",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1693212988692,
+      "tag": "0002_magenta_starjammers",
+      "breakpoints": true
     }
   ]
 }

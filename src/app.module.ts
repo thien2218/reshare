@@ -4,6 +4,7 @@ import { DatabaseModule } from "./database/database.module";
 import { ConfigModule } from "@nestjs/config";
 import { ArticleModule } from "./article/article.module";
 import { PostModule } from './post/post.module';
+import { ResourceModule } from './resource/resource.module';
 
 @Module({
    imports: [
@@ -14,7 +15,8 @@ import { PostModule } from './post/post.module';
       UserModule,
       DatabaseModule,
       ArticleModule,
-      PostModule
+      PostModule,
+      ResourceModule
    ],
    controllers: [],
    providers: []
