@@ -2,11 +2,10 @@ import { LibsqlError, createClient } from "@libsql/client";
 import { BadRequestException, Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LibSQLDatabase, drizzle } from "drizzle-orm/libsql";
-import * as schema from "./tables";
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
-   readonly db: LibSQLDatabase<typeof schema>;
+   readonly db: LibSQLDatabase;
 
    constructor(private readonly configService: ConfigService) {}
 
@@ -17,9 +16,7 @@ export class DatabaseService implements OnModuleInit {
       ) as string;
 
       const client = createClient({ url, authToken });
-      (this as { db: LibSQLDatabase<typeof schema> }).db = drizzle(client, {
-         schema
-      });
+      (this as { db: LibSQLDatabase }).db = drizzle(client);
    }
 
    handleDbError(err: Error) {
@@ -35,9 +32,7 @@ export class DatabaseService implements OnModuleInit {
 
          throw new BadRequestException([message]);
       } else {
-         throw new BadRequestException(
-            "Something went wrong with the database"
-         );
+         throw new BadRequestException(err.message);
       }
    }
 }

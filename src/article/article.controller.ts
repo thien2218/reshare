@@ -44,6 +44,7 @@ export class ArticleController {
       return this.articleService.findOneById(id);
    }
 
+   @HttpCode(HttpStatus.NO_CONTENT)
    @UseGuards(AccessGuard)
    @UsePipes(new ZodValidationPipe(UpdateArticleSchema))
    @Put(":id")
@@ -51,7 +52,7 @@ export class ArticleController {
       @Param("id") id: string,
       @User() { sub }: UserDto,
       @Body() updateArticleDto: UpdateArticleDto
-   ): Promise<SelectArticleDto> {
+   ) {
       return this.articleService.update(id, sub, updateArticleDto);
    }
 

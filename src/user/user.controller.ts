@@ -22,12 +22,10 @@ export class UserController {
       return this.userService.findOneById(id);
    }
 
+   @HttpCode(HttpStatus.NO_CONTENT)
    @UsePipes(new ZodValidationPipe(UpdateUserSchema))
    @Put(":id")
-   async update(
-      @Param("id") id: string,
-      @Body() updateUserDto: UpdateUserDto
-   ): Promise<SelectUserDto> {
+   async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
       return this.userService.update(id, updateUserDto);
    }
 

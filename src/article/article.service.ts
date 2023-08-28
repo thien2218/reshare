@@ -11,7 +11,7 @@ import {
    UserDto
 } from "src/schemas";
 import { articles, resources, users } from "src/database/tables";
-import { and, eq, inArray, placeholder } from "drizzle-orm";
+import { and, eq, placeholder } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getTimestamp } from "src/utils/getTimestamp";
 import { DatabaseService } from "src/database/database.service";
@@ -32,6 +32,7 @@ export class ArticleService {
 
       const resourceValues = {
          id: nanoid(25),
+         articleId: articleValues.id,
          authorId: sub,
          scope,
          allowComments,
@@ -39,29 +40,29 @@ export class ArticleService {
          updatedAt: getTimestamp()
       };
 
-      const articleInfo = await this.dbService.db.transaction(async (txn) => {
-         const articlePrepare = txn
-            .insert(articles)
-            .values(this.articlePlaceholders())
-            .returning()
-            .prepare();
+      const article = await this.dbService.db
+         .transaction(async (txn) => {
+            const articlePrepare = txn
+               .insert(articles)
+               .values(this.articlePlaceholders())
+               .returning()
+               .prepare();
 
-         const article = await articlePrepare.get(articleValues);
-         if (!article) throw new BadRequestException("Invalid user id");
+            const article = await articlePrepare.get(articleValues);
 
-         const resourcePrepare = txn
-            .insert(resources)
-            .values(this.resourcePlaceholders())
-            .returning()
-            .prepare();
+            const resourcePrepare = txn
+               .insert(resources)
+               .values(this.resourcePlaceholders())
+               .returning()
+               .prepare();
 
-         const details = await resourcePrepare.get(resourceValues);
-         if (!details) throw new BadRequestException("Invalid user id");
+            const details = await resourcePrepare.get(resourceValues);
 
-         return { article, details, author: { id: sub, ...userRest } };
-      });
+            return { article, details, author: { id: sub, ...userRest } };
+         })
+         .catch(this.dbService.handleDbError);
 
-      const result = SelectArticleSchema.parse(articleInfo);
+      const result = SelectArticleSchema.parse(article);
       return result;
    }
 
@@ -88,7 +89,7 @@ export class ArticleService {
       id: string,
       userId: string,
       updateArticleDto: UpdateArticleDto
-   ): Promise<SelectArticleDto> {
+   ) {
       const subquery = this.dbService.db
          .select({ articleId: resources.articleId })
          .from(resources)
@@ -103,15 +104,11 @@ export class ArticleService {
          .update(articles)
          .set(updateArticleDto)
          .where(eq(articles.id, subquery))
-         .returning()
          .prepare();
 
-      const article = await prepared.get({ id, userId });
-      if (!article)
-         throw new BadRequestException("Invalid article id or user id");
-
-      const result = SelectArticleSchema.parse(article);
-      return result;
+      const result = await prepared.run({ id, userId });
+      if (result.rowsAffected === 0)
+         throw new BadRequestException("Article not found");
    }
 
    async remove(id: string, userId: string) {
@@ -145,6 +142,7 @@ export class ArticleService {
    private resourcePlaceholders() {
       return {
          id: placeholder("id"),
+         articleId: placeholder("articleId"),
          authorId: placeholder("authorId"),
          scope: placeholder("scope"),
          allowComments: placeholder("allowComments"),

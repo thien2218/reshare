@@ -26,23 +26,15 @@ export class UserService {
       return result;
    }
 
-   async update(
-      id: string,
-      updateUserDto: UpdateUserDto
-   ): Promise<SelectUserDto> {
-      const user = await this.dbService.db
+   async update(id: string, updateUserDto: UpdateUserDto) {
+      const result = await this.dbService.db
          .update(users)
          .set(updateUserDto)
          .where(eq(users.id, id))
-         .returning()
-         .get();
+         .run();
 
-      if (!user) {
+      if (result.rowsAffected === 0)
          throw new BadRequestException("Invalid user id");
-      }
-
-      const result = SelectUserSchema.parse(user);
-      return result;
    }
 
    async remove(id: string) {

@@ -25,7 +25,7 @@ export class RefreshStrategy extends PassportStrategy(Strategy, "refresh") {
    async validate(req: FastifyRequest, payload: any) {
       return {
          ...payload,
-         refresh_token: req.cookies["reshare-refresh-token"]
+         refreshToken: req.cookies["reshare-refresh-token"]
       };
    }
 }

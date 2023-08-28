@@ -16,3 +16,10 @@ export const SelectResourceSchema = z.object({
       bio: true
    })
 });
+
+export const CreateResourceSchema = z.object({
+   scope: z.enum(["public", "followers", "private"]),
+   allowComments: z.boolean()
+});
+
+export const UpdateResourceSchema = CreateResourceSchema.partial();

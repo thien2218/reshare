@@ -157,10 +157,7 @@ export class AuthService {
          .prepare();
 
       const user = await prepared.get({ id: sub });
-
-      if (!user) {
-         throw new BadRequestException("Invalid refresh token");
-      }
+      if (!user) throw new BadRequestException("Invalid refresh token");
 
       const isValidRefreshToken = await compare(
          refreshToken,

@@ -40,6 +40,7 @@ export class PostController {
       return this.postService.findOneById(id);
    }
 
+   @HttpCode(HttpStatus.NO_CONTENT)
    @UseGuards(AccessGuard)
    @UsePipes(new ZodValidationPipe(UpdatePostSchema))
    @Put(":id")

@@ -3,7 +3,7 @@ import {
    Injectable,
    NotFoundException
 } from "@nestjs/common";
-import { and, eq, inArray, placeholder } from "drizzle-orm";
+import { and, eq, placeholder } from "drizzle-orm";
 import { DatabaseService } from "src/database/database.service";
 import {
    CreatePostDto,
@@ -32,6 +32,7 @@ export class PostService {
 
       const resourceValues = {
          id: nanoid(25),
+         postId: postValues.id,
          authorId: sub,
          scope,
          allowComments,
@@ -39,29 +40,29 @@ export class PostService {
          updatedAt: getTimestamp()
       };
 
-      const postInfo = this.dbService.db.transaction(async (txn) => {
-         const postPrepare = txn
-            .insert(posts)
-            .values(this.postPlaceholders())
-            .returning()
-            .prepare();
+      const post = await this.dbService.db
+         .transaction(async (txn) => {
+            const postPrepare = txn
+               .insert(posts)
+               .values(this.postPlaceholders())
+               .returning()
+               .prepare();
 
-         const post = await postPrepare.get(postValues);
-         if (!post) throw new BadRequestException("Invalid user id");
+            const post = await postPrepare.get(postValues);
 
-         const resourcePrepare = txn
-            .insert(resources)
-            .values(this.resourcePlaceholders())
-            .returning()
-            .prepare();
+            const resourcePrepare = txn
+               .insert(resources)
+               .values(this.resourcePlaceholders())
+               .returning()
+               .prepare();
 
-         const details = await resourcePrepare.get(resourceValues);
-         if (!details) throw new BadRequestException("Invalid user id");
+            const details = await resourcePrepare.get(resourceValues);
 
-         return { post, details, author: { id: sub, ...userRest } };
-      });
+            return { post, details, author: { id: sub, ...userRest } };
+         })
+         .catch(this.dbService.handleDbError);
 
-      const result = SelectPostSchema.parse(postInfo);
+      const result = SelectPostSchema.parse(post);
       return result;
    }
 
@@ -84,11 +85,7 @@ export class PostService {
       return result;
    }
 
-   async update(
-      id: string,
-      userId: string,
-      updatePostDto: UpdatePostDto
-   ): Promise<SelectPostDto> {
+   async update(id: string, userId: string, updatePostDto: UpdatePostDto) {
       const subquery = this.dbService.db
          .select()
          .from(resources)
@@ -103,14 +100,11 @@ export class PostService {
          .update(posts)
          .set(updatePostDto)
          .where(eq(posts.id, subquery))
-         .returning()
          .prepare();
-      const post = await prepared.get({ id, userId });
 
-      if (!post) throw new BadRequestException("Invalid post id or user id");
-
-      const result = SelectPostSchema.parse(post);
-      return result;
+      const result = await prepared.run({ id, userId });
+      if (result.rowsAffected === 0)
+         throw new BadRequestException("Article not found");
    }
 
    async remove(id: string, userId: string) {
@@ -143,6 +137,7 @@ export class PostService {
    private resourcePlaceholders() {
       return {
          id: placeholder("id"),
+         postId: placeholder("postId"),
          authorId: placeholder("authorId"),
          scope: placeholder("scope"),
          allowComments: placeholder("allowComments"),

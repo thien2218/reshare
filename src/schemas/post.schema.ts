@@ -1,16 +1,16 @@
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
 import { posts } from "../database/tables";
-import { SelectResourceSchema } from "./resource.schema";
+import { CreateResourceSchema, SelectResourceSchema } from "./resource.schema";
 
 // Validation schemas
-export const CreatePostSchema = z.object({
-   content: z.string().nonempty().max(4000),
-   imgAttachments: z.array(z.string().url()).nullable().default(null),
-   urlAttachments: z.array(z.string().url()).nullable().default(null),
-   scope: z.enum(["public", "followers", "private"]),
-   allowComments: z.boolean()
-});
+export const CreatePostSchema = z
+   .object({
+      content: z.string().nonempty().max(4000),
+      imgAttachments: z.array(z.string().url()).nullable().default(null),
+      urlAttachments: z.array(z.string().url()).nullable().default(null)
+   })
+   .extend(CreateResourceSchema.shape);
 
 export const UpdatePostSchema = CreatePostSchema.partial()
    .omit({ scope: true, allowComments: true })
