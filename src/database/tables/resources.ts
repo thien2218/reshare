@@ -18,8 +18,8 @@ export const resources = sqliteTable("resources", {
    scope: text("scope").notNull(),
    allowComments: integer("allow_comments", { mode: "boolean" }).notNull(),
 
-   likesCount: integer("likes_count").notNull().default(0),
-   dislikesCount: integer("dislikes_count").notNull().default(0),
+   likeCount: integer("like_count").notNull().default(0),
+   dislikeCount: integer("dislike_count").notNull().default(0),
    commentsCount: integer("comments_count").notNull().default(0),
 
    createdAt: text("created_at").notNull(),

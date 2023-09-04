@@ -25,7 +25,5 @@ export const CreateResourceSchema = z.object({
 
 export const UpdateResourceSchema = CreateResourceSchema.partial();
 
-export const UpdateReactionSchema = z.enum(["like", "dislike"]);
-
 // DTOs
 export type UpdateResourceDto = z.infer<typeof UpdateResourceSchema>;

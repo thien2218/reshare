@@ -52,4 +52,20 @@ describe("ResourceController", () => {
          expect(service.react).toBeCalledWith("id", userJwtStub().sub, "like");
       });
    });
+
+   describe("unreact", () => {
+      it("should be defined", () => {
+         expect(controller.unreact).toBeDefined();
+      });
+
+      it("should call service.unreact", async () => {
+         await controller.unreact("id", userJwtStub(), "like");
+
+         expect(service.unreact).toBeCalledWith(
+            "id",
+            userJwtStub().sub,
+            "like"
+         );
+      });
+   });
 });

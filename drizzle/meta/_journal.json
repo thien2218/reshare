@@ -22,6 +22,20 @@
       "when": 1693212988692,
       "tag": "0002_magenta_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1693806260878,
+      "tag": "0003_groovy_metal_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1693839267904,
+      "tag": "0004_fine_hitman",
+      "breakpoints": true
     }
   ]
 }

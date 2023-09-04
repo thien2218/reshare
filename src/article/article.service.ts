@@ -106,8 +106,8 @@ export class ArticleService {
          .where(eq(articles.id, subquery))
          .prepare();
 
-      const result = await prepared.run({ id, userId });
-      if (result.rowsAffected === 0)
+      const { rowsAffected } = await prepared.run({ id, userId });
+      if (rowsAffected === 0)
          throw new BadRequestException("Article not found");
    }
 

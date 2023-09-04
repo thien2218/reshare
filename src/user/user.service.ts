@@ -27,14 +27,13 @@ export class UserService {
    }
 
    async update(id: string, updateUserDto: UpdateUserDto) {
-      const result = await this.dbService.db
+      const { rowsAffected } = await this.dbService.db
          .update(users)
          .set(updateUserDto)
          .where(eq(users.id, id))
          .run();
 
-      if (result.rowsAffected === 0)
-         throw new BadRequestException("Invalid user id");
+      if (rowsAffected === 0) throw new BadRequestException("Invalid user id");
    }
 
    async remove(id: string) {
