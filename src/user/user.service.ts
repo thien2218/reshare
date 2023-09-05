@@ -37,13 +37,12 @@ export class UserService {
    }
 
    async remove(id: string) {
-      const isDeleted = await this.dbService.db
+      const { rowsAffected } = await this.dbService.db
          .delete(users)
          .where(eq(users.id, id))
-         .returning({})
-         .get();
+         .run();
 
-      if (!isDeleted) {
+      if (rowsAffected === 0) {
          throw new BadRequestException("Invalid user id");
       }
    }

@@ -4,5 +4,5 @@ CREATE TABLE `reactions` (
 	`type` text NOT NULL,
 	`reactable_type` text NOT NULL,
 	PRIMARY KEY(`reactable_id`, `user_id`),
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE set null
 );

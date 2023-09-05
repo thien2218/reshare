@@ -25,7 +25,6 @@ export class ResourceService {
          .prepare();
 
       const { rowsAffected } = await prepared.run({ id, userId });
-
       if (rowsAffected === 0)
          throw new BadRequestException("Resource not found");
    }

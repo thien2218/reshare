@@ -69,19 +69,20 @@ export class ArticleService {
    async findOneById(id: string): Promise<SelectArticleDto> {
       const details = alias(resources, "details");
       const author = alias(users, "author");
+      const article = alias(articles, "article");
 
       const prepared = this.dbService.db
          .select()
-         .from(articles)
-         .where(eq(articles.id, placeholder("id")))
-         .innerJoin(details, eq(articles.id, details.articleId))
+         .from(article)
+         .where(eq(article.id, placeholder("id")))
+         .innerJoin(details, eq(article.id, details.articleId))
          .innerJoin(author, eq(details.authorId, author.id))
          .prepare();
 
-      const article = await prepared.get({ id });
-      if (!article) throw new NotFoundException("Article not found");
+      const articleData = await prepared.get({ id });
+      if (!articleData) throw new NotFoundException("Article not found");
 
-      const result = SelectArticleSchema.parse(article);
+      const result = SelectArticleSchema.parse(articleData);
       return result;
    }
 
@@ -119,13 +120,13 @@ export class ArticleService {
             and(eq(resources.articleId, id), eq(resources.authorId, userId))
          );
 
-      const isDeleted = await this.dbService.db
+      const { rowsAffected } = await this.dbService.db
          .delete(articles)
          .where(eq(articles.id, subquery))
-         .returning({})
-         .get();
+         .run();
 
-      if (!isDeleted) throw new BadRequestException("Article not found");
+      if (rowsAffected === 0)
+         throw new BadRequestException("Article not found");
    }
 
    // PRIVATE

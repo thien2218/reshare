@@ -69,19 +69,20 @@ export class PostService {
    async findOneById(id: string): Promise<SelectPostDto> {
       const details = alias(resources, "details");
       const author = alias(users, "author");
+      const post = alias(posts, "post");
 
       const prepared = this.dbService.db
          .select()
-         .from(posts)
-         .where(eq(posts.id, placeholder("id")))
-         .innerJoin(details, eq(posts.id, details.articleId))
+         .from(post)
+         .where(eq(post.id, placeholder("id")))
+         .innerJoin(details, eq(post.id, details.postId))
          .innerJoin(author, eq(details.authorId, author.id))
          .prepare();
 
-      const post = await prepared.get({ id });
-      if (!post) throw new NotFoundException();
+      const postData = await prepared.get({ id });
+      if (!postData) throw new NotFoundException();
 
-      const result = SelectPostSchema.parse(post);
+      const result = SelectPostSchema.parse(postData);
       return result;
    }
 
@@ -113,14 +114,12 @@ export class PostService {
          .from(resources)
          .where(and(eq(resources.postId, id), eq(resources.authorId, userId)));
 
-      const isDeleted = await this.dbService.db
+      const { rowsAffected } = await this.dbService.db
          .delete(posts)
          .where(eq(posts.id, subquery))
-         .returning({})
-         .get();
+         .run();
 
-      if (!isDeleted)
-         throw new BadRequestException("Post not found in database");
+      if (rowsAffected === 0) throw new BadRequestException("Post not found");
    }
 
    // PRIVATE
