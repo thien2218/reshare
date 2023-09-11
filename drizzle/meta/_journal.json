@@ -36,6 +36,13 @@
       "when": 1693839267904,
       "tag": "0004_fine_hitman",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1694403840028,
+      "tag": "0005_minor_malice",
+      "breakpoints": true
     }
   ]
 }

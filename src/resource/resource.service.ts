@@ -34,13 +34,13 @@ export class ResourceService {
 
       await this.dbService.db.transaction(async (txn) => {
          const prepared = txn.insert(reactions).values({
-            userId: placeholder("userId"),
             reactableId: placeholder("id"),
+            userId: placeholder("userId"),
             type: placeholder("type"),
             reactableType: "resource"
          });
 
-         let result = await prepared.run({ userId, id, type });
+         let result = await prepared.run({ id, userId, type });
          if (result.rowsAffected === 0)
             throw new BadRequestException(`This user's ${type} already exists`);
 
@@ -64,13 +64,13 @@ export class ResourceService {
             .delete(reactions)
             .where(
                and(
-                  eq(reactions.userId, placeholder("userId")),
                   eq(reactions.reactableId, placeholder("id")),
+                  eq(reactions.userId, placeholder("userId")),
                   eq(reactions.type, placeholder("type"))
                )
             );
 
-         let result = await prepared.run({ userId, id, type });
+         let result = await prepared.run({ id, userId, type });
          if (result.rowsAffected === 0)
             throw new BadRequestException(`This user's ${type} does not exist`);
 
